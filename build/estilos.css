@@ -1,14 +1,19 @@
-*{box-sizing:border-box}
+/* ============================================================================
+   LAYOUT / COMPONENTES — estrutura, espaçamento, tabelas, funil, gráficos.
+   Cores ficam SEMPRE em identidade-visual.css (via variáveis var(--...)).
+   ============================================================================ */
+  *{box-sizing:border-box}
   html,body{margin:0}
   body{background:var(--bg); color:var(--ink); font-family:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif; font-size:14px; -webkit-font-smoothing:antialiased}
   #app{display:flex; min-height:100vh}
 
   /* ---------- Sidebar ---------- */
-  .sidebar{width:220px; flex:0 0 220px; background:var(--text-primary); color:#fff; position:fixed; top:0; left:0; bottom:0; display:flex; flex-direction:column; z-index:40}
+  .sidebar{width:240px; flex:0 0 240px; background:var(--text-primary); color:#fff; position:fixed; top:0; left:0; bottom:0; display:flex; flex-direction:column; z-index:40}
   .sidebar .logo{padding:20px 20px 14px}
   .sidebar .logo-main{font-weight:800; font-size:18px; letter-spacing:.02em}
   .sidebar .logo-sub{font-size:.7rem; text-transform:uppercase; letter-spacing:.14em; opacity:.35; margin-top:2px}
-  .sidebar .sec{font-size:.65rem; text-transform:uppercase; letter-spacing:.1em; opacity:.3; padding:16px 20px 6px}
+  .sidebar .sec{font-size:.65rem; text-transform:uppercase; letter-spacing:.1em; opacity:.45; padding:20px 20px 8px}
+  .sidebar .logo-main{font-weight:800}
   .nav-item{display:flex; align-items:center; gap:10px; padding:10px 20px; color:#c7c9d6; cursor:pointer; border-left:3px solid transparent; font-size:13.5px}
   .nav-item:hover{background:rgba(255,255,255,.06); color:#fff}
   .nav-item.active{background:rgba(59,91,219,.18); color:#fff; border-left-color:var(--accent-blue)}
@@ -17,7 +22,7 @@
   .ham{display:none}
   #navToggle{display:none}
 
-  .main-area{margin-left:220px; flex:1 1 auto; min-width:0; display:flex; flex-direction:column}
+  .main-area{margin-left:240px; flex:1 1 auto; min-width:0; display:flex; flex-direction:column}
 
   /* ---------- Topbar ---------- */
   .topbar{position:sticky; top:0; z-index:30; background:var(--surface); border-bottom:1px solid var(--border); min-height:64px;
@@ -91,13 +96,26 @@
   .sec-title:first-child{margin-top:0}
 
   .grid{display:grid; gap:16px}
-  .two-col{grid-template-columns:380px 1fr}
-  .three-col{grid-template-columns:360px 1fr}
-  .funnel-grid{grid-template-columns:340px 1fr; align-items:start}
-  .funnel-charts{display:grid; grid-template-columns:1fr 1fr; gap:16px; align-content:start}
+  /* minmax(0,1fr) em vez de 1fr puro: evita que o conteúdo intrínseco de um filho
+     (ex.: rótulo longo de gráfico de barras) force a coluna/grid a estourar a largura
+     disponível — sem isso, o grid podia "vazar" e criar scroll horizontal na PÁGINA. */
+  .two-col{grid-template-columns:380px minmax(0,1fr)}
+  .three-col{grid-template-columns:360px minmax(0,1fr)}
+  .funnel-grid{grid-template-columns:380px minmax(0,1fr); align-items:start}
+  .funnel-charts{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; align-content:start}
+  /* Mar02: três colunas de tamanho igual · Mar05: quatro gráficos na mesma linha */
+  .trio{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; align-items:stretch}
+  /* trio: os 3 cards com a MESMA altura (a tabela alinha com o gráfico/donut ao lado);
+     o conteúdo interno cresce para preencher, sem mudar a altura total da seção */
+  .trio > .card{display:flex; flex-direction:column; min-width:0}
+  .trio > .card > .chart-box, .trio > .card > .donut-wrap, .trio > .card > .tbl-wrap{flex:1 1 auto; min-height:0}
+  .row4{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; align-content:start}
+  .duo{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px}
   @media(max-width:1000px){.two-col,.three-col,.funnel-grid{grid-template-columns:1fr}}
   @media(max-width:1200px){.funnel-charts{grid-template-columns:1fr}}
-  .card{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:16px}
+  @media(max-width:1200px){.trio{grid-template-columns:1fr} .row4{grid-template-columns:1fr 1fr}}
+  @media(max-width:640px){.row4,.duo{grid-template-columns:1fr}}
+  .card{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:16px; min-width:0}
   .card h3{margin:0 0 2px; font-size:14px}
   .card .hint{font-size:12px; color:var(--muted); margin:0 0 10px}
 
@@ -110,7 +128,7 @@
   /* KPIs */
   .kpis{display:grid; gap:12px}
   .kpis.n1{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
-  .kpis.n2{grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); margin-top:12px}
+  .kpis.n2{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
   .kpi{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:14px 15px}
   .kpi .kl{font-size:11.5px; color:var(--muted); display:flex; justify-content:space-between; gap:6px}
   .kpi .kv{font-size:24px; font-weight:700; letter-spacing:-.02em; margin-top:6px}
@@ -121,34 +139,32 @@
   .pill{font-size:10.5px; padding:1px 7px; border-radius:999px; border:1px solid var(--border); color:var(--muted)}
   .pill.q{color:var(--good); border-color:#bfe6bf}
 
-  .chart-box{position:relative; height:260px}
+  .chart-box{position:relative; height:260px; min-width:0}
+  .chart-box canvas{max-width:100%}
   .chart-sm{height:190px}
 
   /* Funnel */
   .funnel{display:flex; flex-direction:column; gap:7px}
   .step{display:flex; align-items:center; justify-content:space-between; gap:14px; row-gap:8px; flex-wrap:wrap; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:11px 15px; border-left:4px solid var(--accent-blue)}
+  .step.na{border-left-color:var(--border); opacity:.7}
+  /* Mar01: destaque das etapas MQL (azulado), Gasto (avermelhado) e Receita/Faturamento (esverdeado) + fonte mais forte */
+  .step.hl-mql{background:var(--step-mql-bg); border-left-color:var(--step-mql-bd)}
+  .step.hl-gasto{background:var(--step-gasto-bg); border-left-color:var(--step-gasto-bd)}
+  .step.hl-fat{background:var(--step-fat-bg); border-left-color:var(--step-fat-bd)}
+  .step.hl-mql .m-val,.step.hl-gasto .m-val,.step.hl-fat .m-val{font-size:21px; font-weight:700}
+  .step.hl-mql .m-label,.step.hl-gasto .m-label,.step.hl-fat .m-label{font-weight:600; color:var(--ink)}
   .step .step-main{min-width:0}
   .step .m-label{font-size:11.5px; color:var(--muted)}
-  .step .m-val{font-size:20px; font-weight:700; letter-spacing:-.02em; white-space:nowrap}  /* nunca quebra a linha */
-  .step .m-delta{margin-top:3px; line-height:1}
-  /* variação vs período anterior: verde = bom, vermelho = ruim (fonte fina) */
-  .delta{font-size:11.5px; font-weight:400; white-space:nowrap; font-variant-numeric:tabular-nums}
-  .delta.good{color:var(--good)}
-  .delta.bad{color:var(--bad)}
-  .delta.flat{color:var(--muted)}
-  .step .secs{display:flex; gap:16px; flex-wrap:wrap; justify-content:flex-end; text-align:right; flex-shrink:0; margin-left:auto}
+  .step .m-val{font-size:20px; font-weight:700; letter-spacing:-.02em; white-space:nowrap}
+  .step .secs{display:flex; gap:12px; flex-wrap:nowrap; justify-content:flex-end; text-align:right; flex-shrink:0; margin-left:auto}
   .step .secs .s-label{font-size:10.5px; color:var(--muted); display:block; margin-bottom:3px}
   .step .secs .s-val{font-size:14px; font-weight:600; font-variant-numeric:tabular-nums; white-space:nowrap}
-  /* valores em "tag" (estilo pill) — CAC azul leve, ROAS dourado */
-  .s-val.s-pill{display:inline-block; padding:2px 9px; border-radius:999px; font-size:13px}
-  .s-pill.cac{color:var(--pill-cac); background:var(--pill-cac-bg)}
-  .s-pill.roas{color:var(--pill-roas); background:var(--pill-roas-bg)}
+  .na-tag{font-size:10.5px; color:var(--muted); border:1px dashed var(--border); border-radius:999px; padding:2px 8px}
 
   /* Tables */
   .table-chart-pair{background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow:hidden; margin-top:16px}
   .table-chart-pair .thead-title{padding:12px 15px 0; font-weight:600; font-size:14px}
   .tbl-wrap{overflow:auto; position:relative; scrollbar-width:thin; scrollbar-color:var(--border) transparent}
-  /* scrollbar fina/delicada (webkit) — mesma altura de tabela, só rola o conteúdo */
   .tbl-wrap::-webkit-scrollbar{width:7px; height:7px}
   .tbl-wrap::-webkit-scrollbar-track{background:transparent}
   .tbl-wrap::-webkit-scrollbar-thumb{background:var(--border); border-radius:999px; border:2px solid transparent; background-clip:padding-box}
@@ -157,11 +173,15 @@
   .tbl-normal{max-height:250px}
   .tbl-double{max-height:420px}
   table.dt{border-collapse:separate; border-spacing:0; min-width:100%; font-size:12.5px; table-layout:fixed}
-  table.dt th, table.dt td{padding:7px 10px; border-bottom:1px solid var(--border); white-space:nowrap; overflow:hidden}
+  table.dt th, table.dt td{padding:7px 10px; border-bottom:1px solid var(--border); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
   table.dt thead th{position:sticky; top:0; z-index:2; background:var(--thead); color:var(--muted); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.03em; text-align:right; cursor:pointer; user-select:none}
   table.dt thead th .rsz{position:absolute; right:0; top:0; width:9px; height:100%; cursor:col-resize; z-index:3}
   table.dt thead th .rsz:hover{background:var(--accent-blue); opacity:.5}
-  table.dt th.dim, table.dt td.dim{text-align:left; white-space:normal; word-break:break-word; min-width:0}
+  /* dimensão (campanha/conjunto/anúncio) NUNCA quebra linha: a largura padrão já
+     é calculada para caber o nome inteiro (autoDimWidth); se o usuário encolher a
+     coluna manualmente, corta com reticências (nunca quebra) — redimensione ou
+     dê 2 cliques na borda p/ auto-ajustar (como Sheets/Looker). */
+  table.dt th.dim, table.dt td.dim{text-align:left; min-width:0}
   table.dt td{text-align:right; font-variant-numeric:tabular-nums}
   table.dt td.dim{font-weight:500}
   table.dt thead th.sorted-asc::after{content:" ▲"; font-size:9px}
@@ -171,9 +191,42 @@
   table.dt tbody tr.sel{background:var(--selected)}
   table.dt tfoot td{position:sticky; bottom:0; background:var(--tfoot); font-weight:700; border-top:2px solid var(--border); text-align:right}
   table.dt tfoot td.dim{text-align:left}
-  .pair-chart{border-top:1px solid var(--border); padding:8px 10px 10px; height:190px; display:flex; flex-direction:column}
-  .pair-chart .pc-title{font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; padding:0 4px 4px; flex:0 0 auto}
-  .pair-chart canvas{flex:1 1 auto; min-height:0}
+  /* Mar01: tabelas diárias com dados centralizados (a dimensão/Dia continua à esquerda) */
+  table.dt.dt-center thead th, table.dt.dt-center td, table.dt.dt-center tfoot td{text-align:center}
+  table.dt.dt-center th.dim, table.dt.dt-center td.dim{text-align:left}
+  /* Tabelas "fit": cabem 100% na largura (SEM scroll lateral); colunas numéricas
+     uniformes, dimensão quebra linha. Mais densas para caber muitas colunas. */
+  table.dt.dt-fit{width:100%; table-layout:fixed}
+  table.dt.dt-fit th, table.dt.dt-fit td{padding:6px 5px; font-size:11px}
+  table.dt.dt-fit td{overflow:hidden; text-overflow:ellipsis}
+  table.dt.dt-fit td.dim{white-space:normal; word-break:break-word}
+  /* cabeçalho denso: fonte menor, sem espaçamento e podendo quebrar (não corta o nome) */
+  table.dt.dt-fit thead th{font-size:10px; letter-spacing:0; white-space:normal; line-height:1.12; padding:6px 4px; vertical-align:bottom}
+  table.dt.dt-fit thead th .rsz{display:none}   /* sem redimensionar quando é fit-to-width */
+  /* Donut de taxa de qualificação (Mar02) com rótulo central */
+  .donut-wrap{position:relative; height:190px}
+  .donut-center{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; pointer-events:none}
+  .donut-center .dc-val{font-size:24px; font-weight:800; line-height:1}
+  .donut-center .dc-lbl{font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; margin-top:2px}
+  .tag-q{color:var(--good); font-weight:700}
+  .pair-chart{border-top:1px solid var(--border); padding:8px 10px 10px; display:flex; flex-direction:column; gap:6px}
+  .pair-chart .pc-title{font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; padding:0 4px; flex:0 0 auto}
+  .pc-canvas-wrap{position:relative; height:150px; flex:0 0 auto}
+  .pc-canvas-wrap canvas{width:100% !important; height:100% !important}
+  /* legenda customizada dos gráficos de Campanha/Conjunto/Anúncio: substitui a
+     legenda nativa do Chart.js (que quebrava/truncava nomes longos). Uma linha
+     por membro — quadrado da cor · nome COMPLETO (sem cortar) · CPMQL — clicável
+     (filtra a tabela/gráfico igual clicar na linha da tabela). Rola dentro de si
+     mesma (vertical se houver muitos membros; horizontal se um nome for maior
+     que a largura do painel) — nunca a página. */
+  .chart-legend{max-height:150px; overflow:auto; font-size:11.5px; border-top:1px solid var(--border); padding-top:6px}
+  .chart-legend .cl-row{display:flex; align-items:center; gap:8px; padding:4px 6px; border-radius:6px;
+    cursor:pointer; white-space:nowrap}
+  .chart-legend .cl-row:hover{background:var(--accent-blue-light)}
+  .chart-legend .cl-row.sel{background:var(--selected); font-weight:700}
+  .chart-legend .cl-swatch{width:10px; height:10px; border-radius:2px; flex:0 0 auto}
+  .chart-legend .cl-name{color:var(--ink); white-space:nowrap}
+  .chart-legend .cl-val{padding-left:14px; color:var(--muted); font-variant-numeric:tabular-nums; flex:0 0 auto; font-size:10.5px; white-space:nowrap}
 
   .note{font-size:11.5px; color:var(--muted); margin-top:10px}
   .foot{margin-top:26px; font-size:11.5px; color:var(--muted); border-top:1px solid var(--border); padding-top:12px}
@@ -185,93 +238,87 @@
     label.ham{display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px; border:1px solid var(--border); border-radius:9px; cursor:pointer; background:var(--surface)}
   }
 
-  /* ---------- IA Insights ---------- */
-  .ia-config{margin-top:12px; border-top:1px solid var(--border); padding-top:12px}
-  .ia-fields{display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end}
-  .ia-fields label{display:flex; flex-direction:column; font-size:11.5px; color:var(--muted); gap:4px}
-  .ia-fields input{border:1px solid var(--border); border-radius:8px; padding:7px 9px; font-size:12.5px; background:var(--surface); color:var(--ink); min-width:260px}
-  .ia-cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:14px; margin-top:16px}
-  .ins-card{background:var(--surface); border:1px solid var(--border); border-left:4px solid var(--muted); border-radius:12px; padding:14px 15px}
-  .ins-card.sev-alta{border-left-color:var(--bad)}
-  .ins-card.sev-media{border-left-color:var(--yellow)}
-  .ins-card.sev-baixa{border-left-color:var(--aqua)}
-  .ins-card.err{border-left-color:var(--bad)}
-  .ins-head{display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px}
-  .ins-badge{font-size:10.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--accent-blue); background:var(--accent-blue-light); border:1px solid var(--border); border-radius:999px; padding:2px 8px}
-  .ins-sev{font-size:10.5px; text-transform:uppercase; font-weight:700; color:var(--muted)}
-  .sev-alta .ins-sev{color:var(--bad)} .sev-media .ins-sev{color:var(--yellow)} .sev-baixa .ins-sev{color:var(--aqua)}
-  .ins-title{font-weight:700; font-size:14px; margin-bottom:6px}
-  .ins-diag{font-size:12.5px; color:var(--ink); margin-bottom:8px; line-height:1.45}
-  .ins-rec{font-size:12.5px; color:var(--ink); background:var(--bg); border-radius:8px; padding:8px 10px; line-height:1.45}
-  .ins-struct{font-size:11.5px; color:var(--muted); margin-top:8px; word-break:break-word}
-  .ins-verba{font-size:12px; margin-top:10px; background:linear-gradient(180deg,var(--accent-blue-light),var(--surface)); border:1px solid var(--accent-blue); border-radius:8px; padding:8px 10px}
-  .ins-apply{display:block; font-size:10.5px; color:var(--muted); margin-top:3px}
-  .ia-empty{color:var(--muted); font-size:13px; padding:8px 2px}
-
-  /* ============================ RELATÓRIOS ============================ */
-  /* Código de cor das métricas principais (CAC/ROAS) — reaproveita as cores
-     semânticas da identidade visual. Ciano = "muito acima da meta". */
-  .rc-red{color:var(--red); font-weight:700}
-  .rc-yellow{color:var(--yellow); font-weight:700}
-  .rc-green{color:var(--good); font-weight:700}
-  .rc-cyan{color:var(--aqua); font-weight:700}
-
-  .rel-head{display:flex; justify-content:space-between; align-items:flex-end; gap:16px; flex-wrap:wrap; margin-bottom:4px}
+  /* ============================ ABA RELATÓRIO ============================ */
+  /* cabeçalho do relatório */
+  .rel-head{display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:6px}
   .rel-title{font-size:20px; font-weight:800; margin:0}
   .rel-title span{color:var(--accent-blue)}
-  .rel-sub{font-size:12.5px; color:var(--muted); margin:3px 0 0}
+  .rel-sub{font-size:12.5px; color:var(--muted); margin:2px 0 0}
   .rel-legend{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
   .rel-legend-lbl{font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em}
   .rel-chip{font-size:11px; font-weight:600; padding:3px 9px; border-radius:999px; border:1px solid var(--border)}
-  .rel-chip.c-red{color:var(--red); background:color-mix(in srgb,var(--red) 12%,transparent)}
-  .rel-chip.c-yellow{color:var(--yellow); background:color-mix(in srgb,var(--yellow) 14%,transparent)}
   .rel-chip.c-green{color:var(--good); background:color-mix(in srgb,var(--good) 12%,transparent)}
-  .rel-chip.c-cyan{color:var(--aqua); background:color-mix(in srgb,var(--aqua) 14%,transparent)}
+  .rel-chip.c-yellow{color:var(--yellow); background:color-mix(in srgb,var(--yellow) 16%,transparent)}
+  .rel-chip.c-red{color:var(--bad); background:color-mix(in srgb,var(--bad) 12%,transparent)}
 
-  /* Visão geral Total × Tráfego */
-  .rel-ov{display:grid; grid-template-columns:1fr 1fr; gap:16px}
-  @media(max-width:1100px){.rel-ov{grid-template-columns:1fr}}
-  .rel-ov-block{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:14px 15px}
-  .rel-ov-head{font-size:12.5px; font-weight:700; margin-bottom:12px; display:flex; align-items:baseline; gap:8px}
-  .rel-ov-head span{font-size:11px; font-weight:500; color:var(--muted); text-transform:uppercase; letter-spacing:.05em}
-  .rel-cards{display:grid; grid-template-columns:repeat(3,1fr); gap:10px}
-  @media(max-width:560px){.rel-cards{grid-template-columns:repeat(2,1fr)}}
-  .rel-card{background:var(--bg); border:1px solid var(--border); border-radius:11px; padding:10px 12px}
-  .rel-card .rl{font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.03em}
-  .rel-card .rv{font-size:19px; font-weight:700; letter-spacing:-.02em; margin-top:4px; white-space:nowrap}
-  .rel-card.hero{background:linear-gradient(180deg,var(--accent-blue-light),var(--bg)); border-color:var(--accent-blue)}
+  /* tabelas hierárquicas (Campanha/Conjunto/Anúncio): 3 <table> independentes
+     lado a lado (esquerda fixa · meio com scroll próprio · direita fixa —
+     renderSplitTable em app.js). Cada seção rola VERTICALMENTE por conta
+     própria (max-height igual ao do .tbl-wrap ancestral, aplicado inline por
+     seção + overflow-y:auto aqui) — sticky nativo do thead/tfoot funciona sem
+     ressalva alguma dentro de cada uma, e um listener de scroll em app.js
+     sincroniza as 3. Barra de rolagem vertical só aparece na seção do meio
+     (as fixas escondem a própria); cabendo tudo em qualquer seção, ela
+     simplesmente não aparece e fica idêntico a uma tabela única. */
+  .dt-split{display:flex; align-items:flex-start; min-width:100%}
+  .dt-split table.dt{min-width:0; width:auto}
+  .dt-split-fixed{flex:0 0 auto; overflow-y:auto; overflow-x:hidden; scrollbar-width:none}
+  .dt-split-fixed::-webkit-scrollbar{display:none}
+  .dt-split-scroll{flex:1 1 160px; min-width:100px; overflow:auto; scrollbar-width:thin; scrollbar-color:var(--border) transparent}
+  .dt-split-scroll::-webkit-scrollbar{height:7px; width:7px}
+  .dt-split-scroll::-webkit-scrollbar-track{background:transparent}
+  .dt-split-scroll::-webkit-scrollbar-thumb{background:var(--border); border-radius:999px}
+  .dt-split-l table{border-right:1px solid var(--border)}
+  .dt-split-r table{border-left:1px solid var(--border)}
 
-  /* Tabelas do relatório (reutilizam .dt) + separador vertical estilo Excel */
-  table.dt.rel-dt{table-layout:auto; width:100%}
-  table.dt.rel-dt th, table.dt.rel-dt td{white-space:nowrap}
-  table.dt.rel-dt td.sep-col, table.dt.rel-dt th.sep-col{border-left:2px solid var(--muted)}
-  table.dt.rel-dt tbody tr{cursor:default}
-  table.dt.rel-dt tbody tr:hover{background:var(--accent-blue-light)}
-  .rel-adlink{color:var(--accent-blue); text-decoration:none; font-weight:600}
-  .rel-adlink:hover{text-decoration:underline}
-  .rel-adlink.off{color:var(--muted); font-weight:400; cursor:default}
+  /* ============================ LIVE STYLE ============================ */
+  /* aviso "hoje ainda parcial" (topbar) */
+  .partial-pill{font-size:11px; font-weight:600; padding:3px 9px; border-radius:999px; white-space:nowrap;
+    color:var(--yellow); background:color-mix(in srgb,var(--yellow) 16%,transparent); border:1px solid color-mix(in srgb,var(--yellow) 40%,transparent)}
+  .partial-pill[hidden]{display:none}
+  td .parc{font-size:10px; color:var(--yellow); font-weight:700; margin-left:4px}
 
-  .rel-ads-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px}
-  @media(max-width:1100px){.rel-ads-grid{grid-template-columns:1fr}}
-  .rel-ads-head{padding:12px 15px; font-weight:700; font-size:13.5px; border-bottom:1px solid var(--border)}
-  .rel-ads-head.good{color:var(--good)}
-  .rel-ads-head.bad{color:var(--bad)}
+  /* qualificação de cantores (MQL · desqualificado · não avaliado · removidos) */
+  .qual-grid{display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:10px}
+  @media(max-width:1200px){.qual-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+  @media(max-width:760px){.qual-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  .qual-box{border:1px solid var(--border); border-radius:12px; padding:12px 14px; background:var(--surface)}
+  .qual-box .ql{font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; font-weight:600}
+  .qual-box .qv{font-size:22px; font-weight:800; margin-top:4px; font-variant-numeric:tabular-nums}
+  .qual-box .qa{font-size:11.5px; color:var(--muted); margin-top:2px}
+  .qual-box.q-mql{border-left:4px solid var(--good)}
+  .qual-box.q-dq{border-left:4px solid var(--bad)}
+  .qual-box.q-na{border-left:4px solid var(--yellow)}
+  .qual-box.q-fora{border-left:4px solid var(--muted)}
 
-  /* Briefing do Gestor */
-  .rel-brief{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:20px 22px; line-height:1.6; font-size:13.5px}
-  .rel-brief h3{font-size:14px; margin:18px 0 8px; color:var(--accent-blue); text-transform:uppercase; letter-spacing:.04em}
-  .rel-brief h3:first-child{margin-top:0}
-  .rel-brief p{margin:0 0 10px}
-  .rel-brief ul{margin:0 0 12px; padding-left:20px}
-  .rel-brief li{margin:0 0 6px}
-  .rel-brief b{color:var(--ink)}
-  .rel-brief .tag{display:inline-block; font-size:11px; font-weight:700; padding:1px 8px; border-radius:999px; margin-right:6px}
-  .rel-brief .tag.escala{color:var(--good); background:color-mix(in srgb,var(--good) 14%,transparent)}
-  .rel-brief .tag.otimiza{color:var(--accent-blue); background:color-mix(in srgb,var(--accent-blue) 14%,transparent)}
-  .rel-brief .tag.corte{color:var(--bad); background:color-mix(in srgb,var(--bad) 14%,transparent)}
-  .rel-brief .tag.observar{color:var(--yellow); background:color-mix(in srgb,var(--yellow) 16%,transparent)}
-  .rel-brief-empty{color:var(--muted); font-size:13px}
+  /* comparação quente x frio */
+  .cmp-table{width:100%; border-collapse:collapse; font-size:13px; font-variant-numeric:tabular-nums}
+  .cmp-table th,.cmp-table td{padding:8px 10px; border-bottom:1px solid var(--border); text-align:right}
+  .cmp-table th:first-child,.cmp-table td:first-child{text-align:left; color:var(--muted)}
+  .cmp-table thead th{font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); background:var(--thead)}
+  .cmp-table td.best{color:var(--good); font-weight:700}
 
+  /* progresso da meta do evento */
+  .goal{display:flex; flex-direction:column; gap:8px}
+  .goal-top{display:flex; align-items:baseline; justify-content:space-between; gap:10px; flex-wrap:wrap}
+  .goal-val{font-size:26px; font-weight:800; font-variant-numeric:tabular-nums}
+  .goal-val small{font-size:14px; color:var(--muted); font-weight:600}
+  .goal-pct{font-size:18px; font-weight:800; color:var(--accent-blue)}
+  .goal-bar{height:14px; border-radius:999px; background:var(--grid); overflow:hidden}
+  .goal-fill{height:100%; border-radius:999px; background:var(--good); transition:width .3s}
+  .goal-sub{font-size:12px; color:var(--muted)}
+
+  /* avisos (sem vínculo / separados / etapa desconhecida) */
+  .warn{font-size:12px; border-radius:10px; padding:9px 12px; margin-top:10px;
+    background:color-mix(in srgb,var(--yellow) 10%,var(--surface)); border:1px solid color-mix(in srgb,var(--yellow) 35%,var(--border)); color:var(--ink)}
+  .warn[hidden]{display:none}
+
+  /* Relatório: melhores x piores criativos */
+  .bw-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+  @media(max-width:1000px){.bw-grid{grid-template-columns:1fr}}
+  .bw-grid h3 .tag{font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px; margin-left:6px}
+  .bw-grid h3 .tag.best{color:var(--good); background:color-mix(in srgb,var(--good) 12%,transparent)}
+  .bw-grid h3 .tag.worst{color:var(--bad); background:color-mix(in srgb,var(--bad) 12%,transparent)}
 
 /* Aviso de nova versão publicada (ver "Aviso de nova versão" em app.js).
    Fica sobre o conteúdo, canto inferior direito, sem deslocar o layout. */
