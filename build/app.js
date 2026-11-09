@@ -433,24 +433,26 @@ function dimChart(p, id, fM, fL, agg, dim, dimKey, resFn, resLabel, costFn){
 
 /* ---------------- colunas ---------------- */
 const C_DATE=[{key:'date',label:'Data',type:'date'},{key:'wd',label:'Dia',type:'dim',w:100}];
+const C_GASTO={key:'gasto',label:'Gasto',type:'brl',heat:'gasto'};
 const C_MEDIA=[
-  {key:'gasto',label:'Gasto',type:'brl',heat:'gasto'},{key:'im',label:'Impr.',type:'int'},{key:'cpm',label:'CPM',type:'brl'},
+  {key:'im',label:'Impr.',type:'int'},{key:'cpm',label:'CPM',type:'brl'},
   {key:'cl',label:'Cliques',type:'int'},{key:'ctr',label:'CTR',type:'pct'},{key:'cpc',label:'CPC',type:'brl'},
   {key:'pv',label:'Page Views',type:'int'},{key:'cr',label:'CR',type:'pct'},{key:'cpv',label:'CPV',type:'brl'},
 ];
-const C_LSC=[
+/* Gasto · Leads · CPL ficam SEMPRE à esquerda (visíveis sem rolar); mídia no fim */
+const C_LSC=[C_GASTO,
   {key:'leads',label:'Leads',type:'int',heat:'leads'},{key:'cpl',label:'CPL',type:'brl'},
+  {key:'txq',label:'Tx‑Qualif.',type:'pct'},
   {key:'mql',label:'MQLs',type:'int',heat:'mqls'},{key:'cpmql',label:'CPMQL',type:'brl'},
   {key:'dq',label:'Desqualif.',type:'int'},{key:'na',label:'Não aval.',type:'int'},
-  {key:'txq',label:'Tx‑Qualif.',type:'pct'},
-];
-const C_EVT=[
+].concat(C_MEDIA);
+const C_EVT=[C_GASTO,
   {key:'leads',label:'Inscrições',type:'int',heat:'leads'},{key:'cpl',label:'CPL',type:'brl'},{key:'convlp',label:'ConvLP',type:'pct'},
-];
-const C_SEG=[
-  {key:'gasto',label:'Gasto',type:'brl',heat:'gasto'},{key:'im',label:'Impr.',type:'int'},{key:'cpm',label:'CPM',type:'brl'},
+].concat(C_MEDIA);
+const C_SEG=[C_GASTO,
+  {key:'seg',label:'Seguidores',type:'int',heat:'mqls',w:110},{key:'cpseg',label:'C/Seguidor',type:'brl'},{key:'segcl',label:'Seg./Clique',type:'pct',w:105},
+  {key:'im',label:'Impr.',type:'int'},{key:'cpm',label:'CPM',type:'brl'},
   {key:'cl',label:'Cliques',type:'int'},{key:'ctr',label:'CTR',type:'pct'},{key:'cpc',label:'CPC',type:'brl'},
-  {key:'seg',label:'Seguidores',type:'int',heat:'mqls'},{key:'cpseg',label:'C/Seguidor',type:'brl'},{key:'segcl',label:'Seg./Clique',type:'pct'},
 ];
 function cells(a){ const d=derive(a);
   return {gasto:d.gasto, im:a.im, cpm:d.cpm, cl:a.cl, ctr:d.ctr, cpc:d.cpc, pv:a.pv, cr:d.cr, cpv:d.cpv,
@@ -470,13 +472,17 @@ function dailyTable(id, cols, fM, fL){
 function hierTables(p, prefix, cols, chart){
   [['C','camp','Camp','Campanha'],['A','adset','Adset','Conjunto'],['D','ad','Ad','Anúncio']].forEach(([dk,dim,suf,label])=>{
     const S=scope(p,dk), agg=buildAgg(S.fM,S.fL,dim);
-    renderTable({id:prefix+suf, cols:[{key:'dim',label,type:'dim',big:true,band:'l'},{...cols[0],band:'l'}].concat(cols.slice(1)),
+    renderTable({id:prefix+suf, cols:[{key:'dim',label,type:'dim',big:true,band:'l'}].concat(cols.map((c,i)=>i<3?{...c,band:'l'}:c)),
       rows:Object.entries(agg).map(([k,a])=>({k, cells:{dim:k, ...cells(a)}})),
       total:{dim:null, ...cells(totals(S.fM,S.fL))},
       selectable:true, selSet:STATE.sel[p][dk], onSelect:(k,e)=>selDim(p,dk,k,e&&(e.ctrlKey||e.metaKey))});
     if(chart) dimChart(p, prefix+'Ch'+suf, S.fM, S.fL, agg, dim, dk, chart.res, chart.label, chart.cost);
   });
 }
+
+/* ---------------- cards de destaque (topo de cada página) ---------------- */
+function kpiRow(id, ks){ const el=document.getElementById(id); if(!el) return;
+  el.innerHTML=ks.map(k=>`<div class="kpi ${k.hero?'hero':''}"><div class="kl"><span>${k.label}</span></div><div class="kv">${k.val}</div><div class="ka">${k.aux||''}</div></div>`).join(''); }
 
 /* ---------------- avisos ---------------- */
 const plural=(n,a,b)=>intf(n)+' '+(n===1?a:b);
@@ -499,14 +505,25 @@ function warnHTML(p, fL){
 }
 function setWarn(id, html){ const el=document.getElementById(id); if(!el) return; el.innerHTML=html; el.hidden=!html; }
 
-/* ---------------- VISÃO GERAL (e espelho no Relatório) ---------------- */
+/* ---------------- VISÃO GERAL ---------------- */
 function renderGeralCore(ids){
   const fML=act(ML), fME=act(ME), fMS=act(SEG), fLL=act(LL), fLE=act(LE);
   const tL=totals(fML,fLL), tE=totals(fME,fLE), tS=totals(fMS,[]);
   const dL=derive(tL), dE=derive(tE), dS=derive(tS);
   const gTot=dL.gasto+dE.gasto+dS.gasto;
+  /* leads de TODAS as campanhas de captação (cantores + evento) e CPL sobre o gasto dessas campanhas */
+  const nLeads=tL.leads+tE.leads, cplTot=nLeads?(dL.gasto+dE.gasto)/nLeads:null;
+  kpiRow(ids.kpis,[
+    {label:'Investimento total',val:brl(gTot),aux:'todas as campanhas · '+(STATE.tax?'com imposto':'bruto')},
+    {label:'Leads (todas as campanhas)',val:intf(nLeads),aux:`${intf(tL.leads)} cantores + ${intf(tE.leads)} evento`,hero:true},
+    {label:'Custo por lead',val:brl(cplTot),aux:'gasto cantores + evento ÷ leads',hero:true},
+    {label:'Taxa de qualificação',val:pct(dL.txq),aux:`cantores · ${intf(tL.mql)} MQLs ÷ ${intf(dL.aval)} avaliados`,hero:true},
+    {label:'Seguidores',val:intf(dS.seg),aux:'Instagram'},
+    {label:'Custo por seguidor',val:brl(dS.cpseg),aux:'só dias preenchidos'},
+  ]);
   document.getElementById(ids.funnel).innerHTML=funnelHTML([
     ['Investimento total', brl(gTot), [['Cantores',brl(dL.gasto)],['Evento',brl(dE.gasto)],['Seguidores',brl(dS.gasto)]], false, 'hl-gasto'],
+    ['Leads (cantores + evento)', intf(nLeads), [['CPL',brl(cplTot)]], false, 'hl-mql'],
     ['Leads de cantores', intf(tL.leads), [['CPL',brl(dL.cpl)]]],
     ['MQLs (Reunião CEO)', intf(tL.mql), [['Tx‑Qualif.',pct(dL.txq)],['CPMQL',brl(dL.cpmql)]], false, 'hl-mql'],
     ['Inscrições evento SP', intf(tE.leads), [['CPL',brl(dE.cpl)]]],
@@ -522,7 +539,9 @@ function renderGeralCore(ids){
   fMS.forEach(r=>addM(g(r.d).S,r));
   const dd=Object.values(days).sort((a,b)=>a.d<b.d?-1:1);
   const row=x=>{ const a=derive(x.L), b=derive(x.E), c=derive(x.S);
-    return {gasto:a.gasto+b.gasto+c.gasto, gL:a.gasto, leads:x.L.leads, cpl:a.cpl, mql:x.L.mql, cpmql:a.cpmql,
+    const nl=x.L.leads+x.E.leads;
+    return {gasto:a.gasto+b.gasto+c.gasto, lt:nl, cplt:nl?(a.gasto+b.gasto)/nl:null, txq:a.txq,
+      gL:a.gasto, leads:x.L.leads, cpl:a.cpl, mql:x.L.mql, cpmql:a.cpmql,
       gE:b.gasto, insc:x.E.leads, cplE:b.cpl, gS:c.gasto, seg:c.seg, cpseg:c.cpseg}; };
   comboChart(ids.combo, dd,
     [{label:'MQLs',fn:x=>x.L.mql,color:'--chart-mqls'},{label:'Inscrições',fn:x=>x.E.leads,color:'--chart-leads'},{label:'Seguidores',fn:x=>derive(x.S).seg,color:'--cc2'}],
@@ -530,26 +549,35 @@ function renderGeralCore(ids){
   renderTable({id:ids.daily, center:true,
     cols:C_DATE.concat([
       {key:'gasto',label:'Gasto total',type:'brl',heat:'gasto'},
-      {key:'gL',label:'Gasto Cantores',type:'brl'},{key:'leads',label:'Leads',type:'int',heat:'leads'},{key:'cpl',label:'CPL',type:'brl'},
-      {key:'mql',label:'MQLs',type:'int',heat:'mqls'},{key:'cpmql',label:'CPMQL',type:'brl'},
-      {key:'gE',label:'Gasto Evento',type:'brl'},{key:'insc',label:'Inscrições',type:'int',heat:'leads'},{key:'cplE',label:'CPL Evento',type:'brl'},
-      {key:'gS',label:'Gasto Seguidores',type:'brl'},{key:'seg',label:'Seguidores',type:'int',heat:'mqls'},{key:'cpseg',label:'C/Seguidor',type:'brl'}]),
+      {key:'lt',label:'Leads total',type:'int',heat:'leads',w:110},{key:'cplt',label:'CPL total',type:'brl'},
+      {key:'leads',label:'Leads cantores',type:'int',w:125},{key:'cpl',label:'CPL cantores',type:'brl'},
+      {key:'txq',label:'Tx‑Qualif.',type:'pct'},{key:'mql',label:'MQLs',type:'int',heat:'mqls'},{key:'cpmql',label:'CPMQL',type:'brl'},
+      {key:'insc',label:'Inscrições',type:'int',w:105},{key:'cplE',label:'CPL evento',type:'brl'},
+      {key:'seg',label:'Seguidores',type:'int'},{key:'cpseg',label:'C/Seguidor',type:'brl'},
+      {key:'gL',label:'Gasto cantores',type:'brl'},{key:'gE',label:'Gasto evento',type:'brl'},{key:'gS',label:'Gasto seguidores',type:'brl'}]),
     rows:dd.slice().reverse().map(x=>({k:x.d, cells:{date:x.d, wd:wdCell(x.d), ...row(x)}})),
     total:{date:null, wd:'', ...row({L:tL,E:tE,S:tS})},
     selectable:true, selSet:STATE.selDays, onSelect:onDay});
 }
-function renderGeral(){ renderGeralCore({funnel:'geralFunnel',warn:'geralWarn',combo:'gCombo',daily:'gDaily'}); }
+function renderGeral(){ renderGeralCore({kpis:'geralKpis',funnel:'geralFunnel',warn:'geralWarn',combo:'gCombo',daily:'gDaily'}); }
 
 /* ---------------- CANTORES (LSC) ---------------- */
 const temp=c=>/QUENTE/i.test(c)?'q':/FRIO/i.test(c)?'f':'o';
 function renderLsc(){
   const {fM,fL}=scope('lsc',null), t=totals(fM,fL), d=derive(t);
+  kpiRow('lscKpis',[
+    {label:'Investimento',val:brl(d.gasto),aux:STATE.tax?'com imposto':'bruto'},
+    {label:'Leads',val:intf(t.leads),aux:'cadastros de anúncio Meta',hero:true},
+    {label:'Custo por lead',val:brl(d.cpl),aux:'gasto ÷ leads',hero:true},
+    {label:'Taxa de qualificação',val:pct(d.txq),aux:`${intf(t.mql)} MQLs ÷ ${intf(d.aval)} avaliados`,hero:true},
+    {label:'MQLs (Reunião CEO)',val:intf(t.mql),aux:'CPMQL '+brl(d.cpmql)},
+  ]);
   document.getElementById('lscFunnel').innerHTML=funnelHTML([
     ['Gasto', brl(d.gasto), [], false, 'hl-gasto'],
     ['Impressões', intf(t.im), [['CPM',brl(d.cpm)]]],
     ['Cliques', intf(t.cl), [['CTR',pct(d.ctr)],['CPC',brl(d.cpc)]]],
     ['Page Views', intf(t.pv), [['CR',pct(d.cr)],['CPV',brl(d.cpv)]]],
-    ['Leads', intf(t.leads), [['CPL',brl(d.cpl)],['ConvLP',pct(d.convlp)]]],
+    ['Leads', intf(t.leads), [['CPL',brl(d.cpl)],['Tx‑Qualif.',pct(d.txq)]], false, 'hl-mql'],
     ['MQLs (Reunião CEO)', intf(t.mql), [['Tx‑Qualif.',pct(d.txq)],['CPMQL',brl(d.cpmql)]], false, 'hl-mql'],
   ]);
   setWarn('lscWarn', warnHTML('lsc',fL));
@@ -578,8 +606,8 @@ function renderLsc(){
       return `<tr><td>${l}</td>${[0,1,2].map(x=>`<td class="${x===b?'best':''}">${f(x)}</td>`).join('')}</tr>`; }).join('')+'</tbody>';
   comboChart('lscCombo', daily(fM,fL), [{label:'MQLs',fn:x=>x.mql,color:'--chart-mqls'}],
     [{label:'Gasto',fn:x=>x.sp*taxf(),color:'--chart-gasto'},{label:'CPMQL',fn:x=>derive(x).cpmql,color:'--chart-cpmql'}]);
-  dailyTable('lscDaily', C_MEDIA.concat(C_LSC), fM, fL);
-  hierTables('lsc','lsc', C_MEDIA.concat(C_LSC), {res:r=>r.st==='mql'?1:0, label:'MQLs', cost:x=>x.cpmql});
+  dailyTable('lscDaily', C_LSC, fM, fL);
+  hierTables('lsc','lsc', C_LSC, {res:r=>r.st==='mql'?1:0, label:'MQLs', cost:x=>x.cpmql});
 }
 
 /* ---------------- EVENTO SP (EVT) ---------------- */
@@ -595,6 +623,12 @@ function renderEvt(){
     +`<div class="goal-bar"><div class="goal-fill" style="width:${Math.min(100,p*100).toFixed(1)}%"></div></div>`
     +`<div class="goal-sub">Faltam <b>${intf(Math.max(0,goal-n))}</b> · ${dLeft?plural(dLeft,'dia restante','dias restantes')+' (incluindo hoje)':'captação encerrada'} · gasto na janela ${brl(gWin)} · CPL ${brl(n?gWin/n:null)}</div>`;
   const {fM,fL}=scope('evt',null), t=totals(fM,fL), d=derive(t);
+  kpiRow('evtKpis',[
+    {label:'Investimento',val:brl(d.gasto),aux:STATE.tax?'com imposto':'bruto'},
+    {label:'Inscrições (leads)',val:intf(t.leads),aux:'cadastros de anúncio Meta',hero:true},
+    {label:'Custo por lead',val:brl(d.cpl),aux:'gasto ÷ inscrições',hero:true},
+    {label:'Meta de inscrições',val:pct(p),aux:`${intf(n)} de ${intf(goal)} · ${brdate(B.evt_start).slice(0,5)} a ${brdate(B.evt_end).slice(0,5)}`},
+  ]);
   document.getElementById('evtFunnel').innerHTML=funnelHTML([
     ['Gasto', brl(d.gasto), [], false, 'hl-gasto'],
     ['Impressões', intf(t.im), [['CPM',brl(d.cpm)]]],
@@ -605,13 +639,18 @@ function renderEvt(){
   setWarn('evtWarn', warnHTML('evt',fL));
   comboChart('evtCombo', daily(fM,fL), [{label:'Inscrições',fn:x=>x.leads,color:'--chart-leads'}],
     [{label:'Gasto',fn:x=>x.sp*taxf(),color:'--chart-gasto'},{label:'CPL',fn:x=>derive(x).cpl,color:'--chart-cpmql'}]);
-  dailyTable('evtDaily', C_MEDIA.concat(C_EVT), fM, fL);
-  hierTables('evt','evt', C_MEDIA.concat(C_EVT), {res:()=>1, label:'inscrições', cost:x=>x.cpl});
+  dailyTable('evtDaily', C_EVT, fM, fL);
+  hierTables('evt','evt', C_EVT, {res:()=>1, label:'inscrições', cost:x=>x.cpl});
 }
 
 /* ---------------- SEGUIDORES INSTAGRAM ---------------- */
 function renderSeg(){
   const {fM}=scope('seg',null), t=totals(fM,[]), d=derive(t);
+  kpiRow('segKpis',[
+    {label:'Investimento',val:brl(d.gasto),aux:STATE.tax?'com imposto':'bruto'},
+    {label:'Seguidores',val:intf(d.seg),aux:'coluna H (lançados à mão)',hero:true},
+    {label:'Custo por seguidor',val:brl(d.cpseg),aux:'só linhas preenchidas',hero:true},
+  ]);
   document.getElementById('segFunnel').innerHTML=funnelHTML([
     ['Gasto', brl(d.gasto), [], false, 'hl-gasto'],
     ['Impressões', intf(t.im), [['CPM',brl(d.cpm)]]],
@@ -629,35 +668,6 @@ function renderSeg(){
   hierTables('seg','seg', C_SEG, null);
 }
 
-/* ---------------- RELATÓRIO ---------------- */
-/* melhores × piores criativos pela QUANTIDADE de leads (empate: menor CPL) */
-function bestWorst(meta, leads, idB, idW, isLsc){
-  const fM=act(meta), fL=act(leads).filter(r=>r.v);
-  const agg=buildAgg(fM,fL,'ad');
-  const pool=Object.entries(agg).filter(([,a])=>a.sp>0).map(([ad,a])=>({ad,a,d:derive(a)}))
-    .sort((x,y)=>y.a.leads-x.a.leads || (x.d.cpl??Infinity)-(y.d.cpl??Infinity) || y.a.sp-x.a.sp);
-  const nb=Math.min(5,Math.ceil(pool.length/2)), nw=Math.min(5,pool.length-nb);
-  const best=pool.slice(0,nb), worst=pool.slice(pool.length-nw).reverse();
-  const res=isLsc?'Leads':'Inscrições';
-  const cols=[{key:'ad',label:'Criativo',type:'dim',big:true},{key:'gasto',label:'Gasto',type:'brl'},
-    {key:'leads',label:res,type:'int'},{key:'cpl',label:'CPL',type:'brl'}]
-    .concat(isLsc?[{key:'mql',label:'MQLs',type:'int'},{key:'cpmql',label:'CPMQL',type:'brl'}]:[]);
-  const rows=list=>list.map(x=>({k:x.ad, cells:{ad:x.ad, gasto:x.d.gasto, leads:x.a.leads, cpl:x.d.cpl, mql:x.a.mql, cpmql:x.d.cpmql}}));
-  renderTable({id:idB, cols, rows:rows(best), center:true});
-  renderTable({id:idW, cols, rows:rows(worst), center:true});
-}
-function renderRelatorio(){
-  renderGeralCore({funnel:'relFunnel',warn:'relWarn',combo:'rCombo',daily:'rDaily'});
-  const pr=PRESETS.find(p=>p[0]===STATE.preset);
-  document.getElementById('relPeriodName').textContent=STATE.selDays.size?'Dias selecionados':(pr?pr[1]:'Personalizado');
-  let txt='';
-  if(STATE.selDays.size) txt=[...STATE.selDays].sort().map(brdate).join(', ');
-  else if(STATE.from&&STATE.to){ const n=Math.round((new Date(STATE.to+'T00:00:00')-new Date(STATE.from+'T00:00:00'))/86400000)+1;
-    txt=`${brdate(STATE.from)} a ${brdate(STATE.to)} · ${plural(n,'dia','dias')}`; }
-  document.getElementById('relPeriodRange').textContent=txt;
-  bestWorst(ML, LL, 'relLscBest', 'relLscWorst', true);
-  bestWorst(ME, LE, 'relEvtBest', 'relEvtWorst', false);
-}
 /* ---------------- date presets ---------------- */
 const PRESETS=[
   ['hoje','Hoje',()=>[TODAY,TODAY]],
@@ -747,7 +757,7 @@ function ppApply(){
 }
 
 /* ---------------- navegação & boot ---------------- */
-const PAGE_TITLES={geral:'Visão Geral', lsc:'Funil de Cantores (LSC)', evt:'Funil Evento SP (EVT)', seg:'Seguidores Instagram', rel:'Relatório'};
+const PAGE_TITLES={geral:'Visão Geral', lsc:'Funil de Cantores (LSC)', evt:'Funil Evento SP (EVT)', seg:'Seguidores Instagram'};
 function setPage(p){ STATE.page=p;
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.page===p));
   Object.keys(PAGE_TITLES).forEach(k=>document.getElementById('page-'+k).classList.toggle('active',k===p));
@@ -766,7 +776,7 @@ function syncPartial(){
 function renderAll(){
   syncPartial();
   if(STATE.page==='lsc') renderLsc(); else if(STATE.page==='evt') renderEvt(); else if(STATE.page==='seg') renderSeg();
-  else if(STATE.page==='rel') renderRelatorio(); else renderGeral();
+  else renderGeral();
 }
 
 function applyTheme(){ let t=null; try{ t=localStorage.getItem('dm_theme'); }catch(e){}

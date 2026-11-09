@@ -238,19 +238,6 @@
     label.ham{display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px; border:1px solid var(--border); border-radius:9px; cursor:pointer; background:var(--surface)}
   }
 
-  /* ============================ ABA RELATÓRIO ============================ */
-  /* cabeçalho do relatório */
-  .rel-head{display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:6px}
-  .rel-title{font-size:20px; font-weight:800; margin:0}
-  .rel-title span{color:var(--accent-blue)}
-  .rel-sub{font-size:12.5px; color:var(--muted); margin:2px 0 0}
-  .rel-legend{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
-  .rel-legend-lbl{font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em}
-  .rel-chip{font-size:11px; font-weight:600; padding:3px 9px; border-radius:999px; border:1px solid var(--border)}
-  .rel-chip.c-green{color:var(--good); background:color-mix(in srgb,var(--good) 12%,transparent)}
-  .rel-chip.c-yellow{color:var(--yellow); background:color-mix(in srgb,var(--yellow) 16%,transparent)}
-  .rel-chip.c-red{color:var(--bad); background:color-mix(in srgb,var(--bad) 12%,transparent)}
-
   /* tabelas hierárquicas (Campanha/Conjunto/Anúncio): 3 <table> independentes
      lado a lado (esquerda fixa · meio com scroll próprio · direita fixa —
      renderSplitTable em app.js). Cada seção rola VERTICALMENTE por conta
@@ -313,12 +300,6 @@
     background:color-mix(in srgb,var(--yellow) 10%,var(--surface)); border:1px solid color-mix(in srgb,var(--yellow) 35%,var(--border)); color:var(--ink)}
   .warn[hidden]{display:none}
 
-  /* Relatório: melhores x piores criativos */
-  .bw-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px}
-  @media(max-width:1000px){.bw-grid{grid-template-columns:1fr}}
-  .bw-grid h3 .tag{font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px; margin-left:6px}
-  .bw-grid h3 .tag.best{color:var(--good); background:color-mix(in srgb,var(--good) 12%,transparent)}
-  .bw-grid h3 .tag.worst{color:var(--bad); background:color-mix(in srgb,var(--bad) 12%,transparent)}
 
 /* Aviso de nova versão publicada (ver "Aviso de nova versão" em app.js).
    Fica sobre o conteúdo, canto inferior direito, sem deslocar o layout. */
@@ -333,3 +314,10 @@
   #updBanner{left:18px; right:18px; justify-content:space-between}
   #updBanner span{white-space:normal}
 }
+
+/* faixa de métricas principais no topo de cada página (aparece no 1º print) */
+.top-kpis{margin:4px 0 18px}
+.top-kpis .kpi .kl{font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:.04em}
+.top-kpis{grid-template-columns:repeat(auto-fit,minmax(165px,1fr))}
+.top-kpis .kpi .kv{font-size:clamp(20px,1.9vw,28px); font-weight:800; font-variant-numeric:tabular-nums; white-space:nowrap}
+.top-kpis .kpi.hero .kv{font-size:clamp(22px,2.1vw,30px)}

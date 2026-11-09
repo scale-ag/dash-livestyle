@@ -27,8 +27,6 @@
     <div class="nav-item" data-page="evt"><span class="ic">◱</span> Funil Evento SP (EVT)</div>
     <div class="sec">Seguidores</div>
     <div class="nav-item" data-page="seg"><span class="ic">♥</span> Seguidores Instagram</div>
-    <div class="sec">Relatório</div>
-    <div class="nav-item" data-page="rel"><span class="ic">▤</span> Relatório</div>
     <div class="foot">Somente leitura · atualiza a cada 2 h<br><span id="buildFoot"></span></div>
   </aside>
 
@@ -73,6 +71,7 @@
     <div class="page-content">
       <!-- ===================== VISÃO GERAL (soma dos 3 funis) ===================== -->
       <div class="page active" id="page-geral">
+        <div class="kpis n1 top-kpis" id="geralKpis"></div>
         <h2 class="sec-title">Investimento &amp; resultados · Cantores + Evento + Seguidores</h2>
         <div class="grid funnel-grid">
           <div class="card"><div class="funnel" id="geralFunnel"></div>
@@ -89,6 +88,7 @@
 
       <!-- ===================== FUNIL DE CANTORES (LSC) ===================== -->
       <div class="page" id="page-lsc">
+        <div class="kpis n1 top-kpis" id="lscKpis"></div>
         <h2 class="sec-title">Funil de cantores (LSC) &amp; evolução diária</h2>
         <div class="grid funnel-grid">
           <div class="card"><div class="funnel" id="lscFunnel"></div>
@@ -137,6 +137,7 @@
 
       <!-- ===================== FUNIL EVENTO SP (EVT) ===================== -->
       <div class="page" id="page-evt">
+        <div class="kpis n1 top-kpis" id="evtKpis"></div>
         <h2 class="sec-title">Meta de inscrições · <span id="evtWindow"></span></h2>
         <div class="card"><div class="goal" id="evtGoal"></div></div>
 
@@ -176,6 +177,7 @@
 
       <!-- ===================== SEGUIDORES INSTAGRAM ===================== -->
       <div class="page" id="page-seg">
+        <div class="kpis n1 top-kpis" id="segKpis"></div>
         <h2 class="sec-title">Seguidores Instagram &amp; evolução diária</h2>
         <div class="grid funnel-grid">
           <div class="card"><div class="funnel" id="segFunnel"></div>
@@ -193,38 +195,6 @@
         <div class="table-chart-pair"><div class="thead-title">Campanhas</div><div class="tbl-wrap tbl-normal"><table class="dt" id="segCamp"></table></div></div>
         <div class="table-chart-pair"><div class="thead-title">Conjuntos</div><div class="tbl-wrap tbl-normal"><table class="dt" id="segAdset"></table></div></div>
         <div class="table-chart-pair"><div class="thead-title">Anúncios (detalhe por anúncio)</div><div class="tbl-wrap tbl-normal"><table class="dt" id="segAd"></table></div></div>
-      </div>
-
-      <!-- ===================== RELATÓRIO ===================== -->
-      <div class="page" id="page-rel">
-        <div class="rel-head">
-          <div>
-            <h2 class="rel-title">Relatório · <span id="relPeriodName">Período</span></h2>
-            <p class="rel-sub" id="relPeriodRange"></p>
-          </div>
-        </div>
-
-        <h2 class="sec-title">Resumo dos 3 funis</h2>
-        <div class="grid funnel-grid">
-          <div class="card"><div class="funnel" id="relFunnel"></div><div class="warn" id="relWarn" hidden></div></div>
-          <div class="panel">
-            <div class="panel-chart"><h3>Evolução diária</h3><p class="hint">MQLs, inscrições e seguidores (barras) · Gasto total (linha vermelha)</p><div class="chart-box"><canvas id="rCombo"></canvas></div></div>
-            <div class="tbl-wrap tbl-normal"><table class="dt" id="rDaily"></table></div>
-          </div>
-        </div>
-
-        <h2 class="sec-title">Criativos · Captação de Cantores</h2>
-        <div class="bw-grid">
-          <div class="card" style="padding:0"><div style="padding:14px 15px 4px"><h3>Melhores criativos <span class="tag best">mais leads</span></h3></div><div class="tbl-wrap" style="max-height:none"><table class="dt" id="relLscBest"></table></div></div>
-          <div class="card" style="padding:0"><div style="padding:14px 15px 4px"><h3>Piores criativos <span class="tag worst">menos leads</span></h3></div><div class="tbl-wrap" style="max-height:none"><table class="dt" id="relLscWorst"></table></div></div>
-        </div>
-
-        <h2 class="sec-title">Criativos · Evento SP</h2>
-        <div class="bw-grid">
-          <div class="card" style="padding:0"><div style="padding:14px 15px 4px"><h3>Melhores criativos <span class="tag best">mais inscrições</span></h3></div><div class="tbl-wrap" style="max-height:none"><table class="dt" id="relEvtBest"></table></div></div>
-          <div class="card" style="padding:0"><div style="padding:14px 15px 4px"><h3>Piores criativos <span class="tag worst">menos inscrições</span></h3></div><div class="tbl-wrap" style="max-height:none"><table class="dt" id="relEvtWorst"></table></div></div>
-        </div>
-        <p class="note">Criativo = nome do anúncio (soma das campanhas/conjuntos em que rodou). Ordenado pela quantidade de leads/inscrições no período; empate decide pelo menor CPL. Só entram criativos com gasto no período; com poucos criativos a lista é dividida ao meio (nenhum aparece nas duas).</p>
       </div>
 
       <div class="foot">Atualizado automaticamente a cada 2 h via GitHub Actions + cron‑job.org. Somente leitura das planilhas. <span id="buildFoot2"></span></div>
