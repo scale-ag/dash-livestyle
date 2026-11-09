@@ -7,7 +7,7 @@
 Estrutura e layout copiados do modelo `scale-ag/dash-lucas-nigro-ral` (menu por
 seção, funil vertical, gráfico diário, tabela diária com heatmap, hierarquia
 Campanha → Conjunto → Anúncio com filtro cruzado, seletor de período, tema
-claro/escuro, imposto). **Nenhuma regra de negócio do Lucas** (CRM comercial,
+claro/escuro, imposto), sem a página Relatório. **Nenhuma regra de negócio do Lucas** (CRM comercial,
 vendas, ChatGPT Ads, metas de CPMQL/CAC, Insights por IA) foi trazida.
 
 ## O que é
@@ -24,12 +24,18 @@ Build 100% no **GitHub Actions**, disparado a cada **2 h** pelo cron-job.org
 
 | Seção | Página (`#hash`) | O que mostra |
 |---|---|---|
-| Geral | Visão Geral (`#geral`) | Soma dos 3 funis: investimento total quebrado em Cantores / Evento / Seguidores + resultados de cada um |
+| Geral | Visão Geral (`#geral`) | Soma de todas as campanhas: investimento total (Cantores / Evento / Seguidores), leads de cantores + evento com CPL, taxa de qualificação (cantores), seguidores e custo por seguidor |
 | Captação de Cantores | Funil de Cantores — LSC (`#lsc`) | Gasto, leads, CPL, MQLs, desqualificados, não avaliados, removidos/arquivados, taxa de qualificação, CPMQL, quente × frio |
 | Evento Presencial | Funil Evento SP — EVT (`#evt`) | Progresso da meta (150), gasto, inscrições, CPL |
 | Seguidores | Seguidores Instagram (`#seg`) | Gasto, seguidores (coluna H), custo por seguidor, por anúncio e por dia |
-| Relatório | Relatório (`#rel`) | Resumo dos 3 funis + **Melhores e Piores criativos** pela quantidade de leads/inscrições |
 
+Cada página abre com uma faixa de **cards de destaque** (métricas principais:
+leads, CPL, taxa de qualificação nos cantores; seguidores e custo por seguidor).
+Nas tabelas, Gasto + resultado + custo vêm logo à esquerda (visíveis sem rolar);
+métricas de mídia (impressões, CPM, cliques, page views) ficam no fim.
+
+A página **Relatório** do modelo foi **removida a pedido do cliente** (09/11/2026).
+O **Evento não tem taxa de qualificação/MQL** (confirmado pelo cliente).
 Não adicionar métricas, páginas ou gráficos que o cliente não tem. Coluna sem
 fonte de dado não entra.
 

@@ -5,8 +5,7 @@ Dashboard estático (HTML/CSS/JS + Chart.js) publicado no GitHub Pages:
 
 Cruza a extração da Meta Ads (Adveronix) com os cadastros reais das bases de leads
 da Live Style em três painéis — **Captação de Cantores (LSC)**, **Evento Presencial SP
-(EVT)** e **Seguidores Instagram** — mais a Visão Geral e o Relatório (melhores e
-piores criativos).
+(EVT)** e **Seguidores Instagram** — mais a Visão Geral, que soma todas as campanhas.
 
 - Atualização: GitHub Actions a cada 2 h, disparado pelo cron-job.org (ver `SETUP-CRON.md`).
 - Planilhas: somente leitura (IDs e abas em `build/config.py`).

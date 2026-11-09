@@ -450,7 +450,7 @@ const C_EVT=[C_GASTO,
   {key:'leads',label:'Inscrições',type:'int',heat:'leads'},{key:'cpl',label:'CPL',type:'brl'},{key:'convlp',label:'ConvLP',type:'pct'},
 ].concat(C_MEDIA);
 const C_SEG=[C_GASTO,
-  {key:'seg',label:'Seguidores',type:'int',heat:'mqls'},{key:'cpseg',label:'C/Seguidor',type:'brl'},{key:'segcl',label:'Seg./Clique',type:'pct'},
+  {key:'seg',label:'Seguidores',type:'int',heat:'mqls',w:110},{key:'cpseg',label:'C/Seguidor',type:'brl'},{key:'segcl',label:'Seg./Clique',type:'pct',w:105},
   {key:'im',label:'Impr.',type:'int'},{key:'cpm',label:'CPM',type:'brl'},
   {key:'cl',label:'Cliques',type:'int'},{key:'ctr',label:'CTR',type:'pct'},{key:'cpc',label:'CPC',type:'brl'},
 ];
@@ -505,7 +505,7 @@ function warnHTML(p, fL){
 }
 function setWarn(id, html){ const el=document.getElementById(id); if(!el) return; el.innerHTML=html; el.hidden=!html; }
 
-/* ---------------- VISÃO GERAL (e espelho no Relatório) ---------------- */
+/* ---------------- VISÃO GERAL ---------------- */
 function renderGeralCore(ids){
   const fML=act(ML), fME=act(ME), fMS=act(SEG), fLL=act(LL), fLE=act(LE);
   const tL=totals(fML,fLL), tE=totals(fME,fLE), tS=totals(fMS,[]);
@@ -668,35 +668,6 @@ function renderSeg(){
   hierTables('seg','seg', C_SEG, null);
 }
 
-/* ---------------- RELATÓRIO ---------------- */
-/* melhores × piores criativos pela QUANTIDADE de leads (empate: menor CPL) */
-function bestWorst(meta, leads, idB, idW, isLsc){
-  const fM=act(meta), fL=act(leads).filter(r=>r.v);
-  const agg=buildAgg(fM,fL,'ad');
-  const pool=Object.entries(agg).filter(([,a])=>a.sp>0).map(([ad,a])=>({ad,a,d:derive(a)}))
-    .sort((x,y)=>y.a.leads-x.a.leads || (x.d.cpl??Infinity)-(y.d.cpl??Infinity) || y.a.sp-x.a.sp);
-  const nb=Math.min(5,Math.ceil(pool.length/2)), nw=Math.min(5,pool.length-nb);
-  const best=pool.slice(0,nb), worst=pool.slice(pool.length-nw).reverse();
-  const res=isLsc?'Leads':'Inscrições';
-  const cols=[{key:'ad',label:'Criativo',type:'dim',big:true},{key:'gasto',label:'Gasto',type:'brl'},
-    {key:'leads',label:res,type:'int'},{key:'cpl',label:'CPL',type:'brl'}]
-    .concat(isLsc?[{key:'mql',label:'MQLs',type:'int'},{key:'cpmql',label:'CPMQL',type:'brl'}]:[]);
-  const rows=list=>list.map(x=>({k:x.ad, cells:{ad:x.ad, gasto:x.d.gasto, leads:x.a.leads, cpl:x.d.cpl, mql:x.a.mql, cpmql:x.d.cpmql}}));
-  renderTable({id:idB, cols, rows:rows(best), center:true});
-  renderTable({id:idW, cols, rows:rows(worst), center:true});
-}
-function renderRelatorio(){
-  renderGeralCore({kpis:'relKpis',funnel:'relFunnel',warn:'relWarn',combo:'rCombo',daily:'rDaily'});
-  const pr=PRESETS.find(p=>p[0]===STATE.preset);
-  document.getElementById('relPeriodName').textContent=STATE.selDays.size?'Dias selecionados':(pr?pr[1]:'Personalizado');
-  let txt='';
-  if(STATE.selDays.size) txt=[...STATE.selDays].sort().map(brdate).join(', ');
-  else if(STATE.from&&STATE.to){ const n=Math.round((new Date(STATE.to+'T00:00:00')-new Date(STATE.from+'T00:00:00'))/86400000)+1;
-    txt=`${brdate(STATE.from)} a ${brdate(STATE.to)} · ${plural(n,'dia','dias')}`; }
-  document.getElementById('relPeriodRange').textContent=txt;
-  bestWorst(ML, LL, 'relLscBest', 'relLscWorst', true);
-  bestWorst(ME, LE, 'relEvtBest', 'relEvtWorst', false);
-}
 /* ---------------- date presets ---------------- */
 const PRESETS=[
   ['hoje','Hoje',()=>[TODAY,TODAY]],
@@ -786,7 +757,7 @@ function ppApply(){
 }
 
 /* ---------------- navegação & boot ---------------- */
-const PAGE_TITLES={geral:'Visão Geral', lsc:'Funil de Cantores (LSC)', evt:'Funil Evento SP (EVT)', seg:'Seguidores Instagram', rel:'Relatório'};
+const PAGE_TITLES={geral:'Visão Geral', lsc:'Funil de Cantores (LSC)', evt:'Funil Evento SP (EVT)', seg:'Seguidores Instagram'};
 function setPage(p){ STATE.page=p;
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.page===p));
   Object.keys(PAGE_TITLES).forEach(k=>document.getElementById('page-'+k).classList.toggle('active',k===p));
@@ -805,7 +776,7 @@ function syncPartial(){
 function renderAll(){
   syncPartial();
   if(STATE.page==='lsc') renderLsc(); else if(STATE.page==='evt') renderEvt(); else if(STATE.page==='seg') renderSeg();
-  else if(STATE.page==='rel') renderRelatorio(); else renderGeral();
+  else renderGeral();
 }
 
 function applyTheme(){ let t=null; try{ t=localStorage.getItem('dm_theme'); }catch(e){}
