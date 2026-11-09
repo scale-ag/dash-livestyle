@@ -1,89 +1,69 @@
 # -*- coding: utf-8 -*-
 """
-Configuração do cliente — TEMPLATE.
+Configuração do cliente Live Style — lida por build/build.py.
 
-Este é o ÚNICO arquivo que precisa ser editado para colocar o funil de um
-cliente novo no ar. Troque TODOS os marcadores <<PREENCHER: ...>> (o build
-se recusa a rodar enquanto algum marcador de texto continuar aqui).
-Ordem completa: "CHECKLIST DE NOVO CLIENTE" no topo do CLAUDE.md.
+Tudo que é específico do cliente fica aqui (planilhas, abas, janelas dos
+painéis, imposto, rótulos). A engine (build.py, app.js, template.html, CSS)
+não deve precisar de edição para mudar esses valores.
 
-Depois de editar, teste localmente:
-
-    python build/build.py --meta-file meta.csv --sales-file sales.csv --out dist/index.html
-
-`build/config.example.py` é a cópia intacta deste modelo — mantenha-o
-sem preencher, para restaurar o config.py se precisar começar do zero.
+As planilhas são SOMENTE LEITURA: o build só lê via gviz (CSV), nunca escreve.
 """
-from __future__ import annotations
 
-# ==========================================================================
-# 1) PLANILHA(S) DO CLIENTE (Google Sheets)
-# ==========================================================================
-# SPREADSHEET_ID: o trecho entre /d/ e /edit na URL da planilha
-#   (https://docs.google.com/spreadsheets/d/<SPREADSHEET_ID>/edit#gid=...)
-# GID_META / GID_SALES: o número depois de "gid=" na URL de cada aba.
-# A planilha precisa estar com o link público em modo "Qualquer pessoa com
-# o link pode visualizar" (o build lê via export CSV, SOMENTE LEITURA).
-SPREADSHEET_ID = "<<PREENCHER: ID da planilha do Meta Ads (trecho entre /d/ e /edit)>>"
-# Opcional: se a lista de Compradores estiver em OUTRA planilha, coloque o ID
-# dela aqui. Vazio = Compradores na mesma planilha do Meta Ads (padrão).
-# <<PREENCHER: ID da planilha de Compradores, só se for separada — senão deixe "">>
-SPREADSHEET_ID_SALES = ""
-GID_META = "<<PREENCHER: gid da aba Meta Ads>>"
-GID_SALES = "<<PREENCHER: gid da aba Compradores/Vendas>>"
+# --------------------------------------------------------------------------- #
+# Rótulos
+# --------------------------------------------------------------------------- #
+CLIENT_NAME = "Live Style"
+CLIENT_SUB = "Cantores · Evento SP · Seguidores"
 
-# ==========================================================================
-# 2) REGRAS DE NEGÓCIO
-# ==========================================================================
-# Fator de imposto aplicado sobre o gasto do Meta Ads quando o toggle
-# "Imposto Meta" estiver ligado. Use 1.0 se o cliente não tiver imposto.
-# <<PREENCHER: fator de imposto do Meta (ex.: 1.13806 = +13,806%; 1.0 = sem imposto)>>
-TAX_FACTOR = 1.0
+# --------------------------------------------------------------------------- #
+# Planilhas (lidas pelo NOME da aba via gviz, com &headers=N)
+# --------------------------------------------------------------------------- #
+# Dash LiveStyle (tráfego, extração Adveronix)
+SPREADSHEET_ID_TRAFEGO = "1McCzHKKJzcF3oeQ4c580qG1L16TI8NRrv0OAhL-MRm4"
+SHEET_META_LSC = "Página1"            # tráfego de cantores
+SHEET_META_EVT = "EVT Presencial SP"  # tráfego do evento
+SHEET_SEG = "Seguidores "             # ATENÇÃO: o nome da aba tem um espaço no final
 
-# Produto principal do funil (base de Vendas/CAC/ConvCHK/Ticket). Casamento
-# por PREFIXO sobre o nome NORMALIZADO (sem acento, minúsculas) da coluna
-# Produto da planilha de Compradores — escreva sem acento e em minúsculas.
-MAIN_PRODUCT_PREFIX = "<<PREENCHER: prefixo do produto principal, sem acento e em minúsculas>>"
+# Leads - LiveStyle (cadastros de cantores). Linha 1 só agrupa colunas; o
+# cabeçalho real está na linha 2 -> headers=2 (o gviz junta as duas linhas, por
+# isso o build casa as colunas pela POSIÇÃO, com o nome só como conferência).
+SPREADSHEET_ID_LSC = "1JTMI-ZJFRcmk2nh8_AQrMzGzAwsX7LMyY8dCF1kUv8M"
+SHEET_LEADS_LSC = "Leads"
+HEADERS_LEADS_LSC = 2
 
-# Qual coluna UTM da planilha de Compradores carrega o Ad Name do Meta:
-# "utm_content", "utm_term" ou "utm_medium". Depende do parametrizador de URL
-# dos anúncios do cliente — CONFIRA nos dados antes de assumir: a coluna que
-# não carrega o anúncio costuma trazer o posicionamento (Instagram_Feed/Stories),
-# e casar pela coluna errada zera as atribuições.
-AD_UTM_COLUMN = "<<PREENCHER: utm_content | utm_term | utm_medium — a coluna que bate com o Ad Name>>"
+# Artista Ilimitado (inscrições do evento). Só a aba "Leads Jornada";
+# "Leads Ilimitados" é outro fluxo e NÃO entra.
+SPREADSHEET_ID_EVT = "14FFjNMUcnruhXgIqwwuzc0UDX3CP7GSO8T6vXgMyzvQ"
+SHEET_LEADS_EVT = "Leads Jornada"
+HEADERS_LEADS_EVT = 1
 
-# A planilha de Compradores tem uma coluna de status de pagamento confiável?
-# SIM -> False (o build filtra por is_paid()). NÃO (toda linha já é uma compra
-# concretizada) -> True (conta todas as linhas como venda paga).
-# <<PREENCHER: True se toda linha é venda paga; False se há coluna Status confiável>>
-COUNT_ALL_AS_PAID = True
+# --------------------------------------------------------------------------- #
+# Painéis
+# --------------------------------------------------------------------------- #
+# Captação de Cantores (LSC): funil contínuo, iniciado em 05/11/2026.
+LSC_START = "2026-11-05"
+# Evento Presencial SP (EVT): captação de 06 a 18/11/2026, meta de 150 inscrições.
+EVT_START = "2026-11-06"
+EVT_END = "2026-11-18"
+EVT_GOAL = 150
 
-# ==========================================================================
-# 3) RÓTULOS EXIBIDOS NA INTERFACE
-# ==========================================================================
-CLIENT_NAME = "<<PREENCHER: nome do cliente (topo do menu lateral)>>"
-CLIENT_SUB = "<<PREENCHER: nome do funil/lançamento (subtítulo abaixo do nome)>>"
-TAX_LABEL = "<<PREENCHER: rótulo do toggle de imposto (ex.: Imposto Meta ×1,13806)>>"
-MAIN_PRODUCT = "<<PREENCHER: nome de exibição do produto principal>>"
+# Classificação de MQL (só cantores) pela coluna D "Etapa atual" da aba Leads.
+# Valores EXATOS. Qualquer outro valor é avisado no log do build e na dash.
+ETAPA_MQL = "Reunião CEO"
+ETAPA_DESQUALIFICADO = "Rejeitado"
+ETAPA_NAO_AVALIADO = "Formulário preenchido"
+ETAPAS_FORA = ("Removido", "Arquivado")   # contam no total de leads, fora da classificação
 
-# ==========================================================================
-# 4) METAS (aba Relatórios) — código de cor de CAC/ROAS
-# ==========================================================================
-#   • ROAS: quanto MAIOR, melhor  -> desempenho = roas / ROAS_TARGET
-#   • CAC : quanto MENOR, melhor  -> desempenho = CAC_TARGET / cac
-# Faixas (sobre o desempenho): <REPORT_BAND_LOW vermelho · até 0,99 amarelo ·
-#   até REPORT_BAND_HIGH verde · acima disso azul-ciano.
-# <<PREENCHER: CAC alvo em R$ por venda do produto principal>>
-CAC_TARGET = 0.0
-# <<PREENCHER: ROAS alvo (Faturamento / Gasto)>>
-ROAS_TARGET = 0.0
-REPORT_BAND_LOW = 0.70
-REPORT_BAND_HIGH = 1.30
+# --------------------------------------------------------------------------- #
+# Regras
+# --------------------------------------------------------------------------- #
+# Imposto de 13,85% sobre o gasto da Meta (toggle "Imposto Meta", ligado por padrão).
+TAX_FACTOR = 1.1385
 
-# ==========================================================================
-# 5) IA INSIGHTS (Cloudflare Worker) — ver SETUP-IA.md
-# ==========================================================================
-# URL pública do Worker (não é secreta). Vazio = aba IA Insights indisponível.
-# Preencher depois de publicar o Worker (checklist do CLAUDE.md).
-# <<PREENCHER: URL do Worker, ex.: https://<nome-do-worker>.<subdominio>.workers.dev>>
-IA_WORKER_URL = ""
+# utm_source que contam como Meta Ads (comparação sem acento/caixa/símbolos:
+# "Meta Ads", "Meta-Ads", "Meta+Ads+", "META" -> "metaads"/"meta").
+META_SOURCES = ("metaads", "meta")
+# utm_source de teste (separado, nunca conta como resultado de anúncio).
+TEST_SOURCES = ("testegtm",)
+# "Como chegou" de teste técnico (só a base do evento tem essa coluna).
+TEST_COMO_CHEGOU = ("Outro: Teste técnico interno",)
