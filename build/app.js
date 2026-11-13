@@ -581,11 +581,13 @@ function renderLsc(){
     ['MQLs (Reunião CEO)', intf(t.mql), [['Tx‑Qualif.',pct(d.txq)],['CPMQL',brl(d.cpmql)]], false, 'hl-mql'],
   ]);
   setWarn('lscWarn', warnHTML('lsc',fL));
+  const foraC={}; fL.forEach(r=>{ if(r.st==='fora') foraC[r.et]=(foraC[r.et]||0)+1; });
+  const foraTxt=Object.entries(foraC).sort((a,b)=>b[1]-a[1]).map(([e,n])=>`${intf(n)} ${escHtml(e)}`).join(' · ');
   document.getElementById('lscQual').innerHTML=[
-    ['q-mql','MQLs','reunião com o CEO marcada',t.mql,'CPMQL '+brl(d.cpmql)],
-    ['q-dq','Desqualificados','Rejeitado sem reunião',t.dq,''],
+    ['q-mql','MQLs','Etapa atual Reunião CEO',t.mql,'CPMQL '+brl(d.cpmql)],
+    ['q-dq','Desqualificados','Rejeitado',t.dq,''],
     ['q-na','Não avaliados','Formulário preenchido',t.na,'fora da taxa'],
-    ['q-fora','Removidos / Arquivados','fora da classificação',t.fora,'contam no total de leads'],
+    ['q-fora','Outras etapas',foraTxt||'Removido, Arquivado, Ativo, Backstage…',t.fora,'no total de leads, fora da taxa'],
     ['','Taxa de qualificação','MQLs ÷ (MQLs + desqualificados)',null,`${intf(t.mql)} ÷ ${intf(d.aval)}`],
   ].map(([c,l,s,v,a])=>`<div class="qual-box ${c}"><div class="ql">${l}</div><div class="qv">${v==null?pct(d.txq):intf(v)}</div><div class="qa">${s}${a?' · '+a:''}</div></div>`).join('');
   /* quente × frio */
