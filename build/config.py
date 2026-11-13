@@ -47,9 +47,16 @@ EVT_START = "2026-11-06"
 EVT_END = "2026-11-18"
 EVT_GOAL = 150
 
-# Classificação de MQL (só cantores) pela coluna D "Etapa atual" da aba Leads.
-# Valores EXATOS. Qualquer outro valor é avisado no log do build e na dash.
+# Classificação de MQL (só cantores). MQL = teve reunião com o CEO marcada:
+#   - coluna H "Reunião CEO em" preenchida, OU
+#   - coluna D "Etapa atual" = Reunião CEO ou qualquer etapa POSTERIOR do CRM
+#     (o lead que avança para Live teste / Backstage / Ativo continua sendo MQL).
+# Só sem reunião com o CEO vale a Etapa atual: Rejeitado = desqualificado,
+# Formulário preenchido = não avaliado, Removido/Arquivado = fora da classificação.
+# Qualquer outro valor é avisado no log do build e na dash.
 ETAPA_MQL = "Reunião CEO"
+ETAPAS_POS_CEO = ("Contato inicial", "Aguardando live teste", "Live teste", "Cadastro Backstage",
+                  "Backstage", "Ativo")
 ETAPA_DESQUALIFICADO = "Rejeitado"
 ETAPA_NAO_AVALIADO = "Formulário preenchido"
 ETAPAS_FORA = ("Removido", "Arquivado")   # contam no total de leads, fora da classificação

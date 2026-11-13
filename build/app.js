@@ -582,8 +582,8 @@ function renderLsc(){
   ]);
   setWarn('lscWarn', warnHTML('lsc',fL));
   document.getElementById('lscQual').innerHTML=[
-    ['q-mql','MQLs','Reunião CEO',t.mql,'CPMQL '+brl(d.cpmql)],
-    ['q-dq','Desqualificados','Rejeitado',t.dq,''],
+    ['q-mql','MQLs','reunião com o CEO marcada',t.mql,'CPMQL '+brl(d.cpmql)],
+    ['q-dq','Desqualificados','Rejeitado sem reunião',t.dq,''],
     ['q-na','Não avaliados','Formulário preenchido',t.na,'fora da taxa'],
     ['q-fora','Removidos / Arquivados','fora da classificação',t.fora,'contam no total de leads'],
     ['','Taxa de qualificação','MQLs ÷ (MQLs + desqualificados)',null,`${intf(t.mql)} ÷ ${intf(d.aval)}`],

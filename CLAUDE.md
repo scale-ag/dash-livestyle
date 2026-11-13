@@ -74,12 +74,20 @@ O `build.py` casa as colunas pelo nome (aliases) com a posição acima como rese
 - **Testes** (separados): `utm_source = teste_gtm` ou Como chegou = `Outro: Teste técnico interno`.
 - **Duplicados**: WhatsApp normalizado (sem DDI 55, DDD + últimos 8 dígitos →
   igual com/sem 9º dígito), fallback no e-mail. Fica o cadastro mais antigo.
-- **MQL (só cantores)** — coluna D *Etapa atual*, valores exatos:
-  - `Reunião CEO` = **MQL**
-  - `Rejeitado` = **Desqualificado**
-  - `Formulário preenchido` = **Ainda não avaliado**
-  - `Removido` / `Arquivado` = contam no total de leads, **fora** da classificação (mostrados à parte)
-  - Qualquer outro valor: aparece como aviso na dash e no log do build → **avisar o gestor**.
+- **MQL (só cantores)** = lead que **teve reunião com o CEO marcada**:
+  - coluna H **"Reunião CEO em" preenchida**, ou
+  - coluna D *Etapa atual* = `Reunião CEO` ou etapa posterior do CRM (`Contato inicial`,
+    `Aguardando live teste`, `Live teste`, `Cadastro Backstage`, `Backstage`, `Ativo` —
+    lista em `ETAPAS_POS_CEO`, `build/config.py`).
+  - **Correção de 13/11/2026:** antes a dash usava só a Etapa atual = `Reunião CEO`. Quando o
+    CRM avançou leads para `Ativo`/`Cadastro Backstage` (e arquivou um após a reunião), eles
+    saíram da contagem de MQL (12 na dash × 21 reais em 05–12/11). A coluna "Etapa mais
+    longe" da planilha NÃO é confiável (fica em "Formulário preenchido" para quem teve reunião).
+  - Sem reunião com o CEO, vale a Etapa atual: `Rejeitado` = **Desqualificado**,
+    `Formulário preenchido` = **Ainda não avaliado**, `Removido` / `Arquivado` = contam no
+    total de leads, **fora** da classificação (mostrados à parte).
+  - Qualquer outro valor: aparece como aviso na dash e no log do build → **avisar o gestor**
+    (e, se for etapa posterior à reunião, incluir em `ETAPAS_POS_CEO`).
 - **Taxa de qualificação** = MQLs ÷ (MQLs + desqualificados), com o denominador
   visível. Não avaliados ficam fora do denominador.
 - **CPMQL** = gasto ÷ MQLs do mesmo escopo (campanha/criativo) e período.

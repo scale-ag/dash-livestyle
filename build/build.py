@@ -251,11 +251,11 @@ def build_followers(rows):
 # Leads (cantores / evento)
 # --------------------------------------------------------------------------- #
 LEAD_COLS = {
-    # Cantores: A id · B entrada · D etapa · N e-mail · O WhatsApp · Q-U UTMs · Z página
-    "lsc": ({"id": ["id do lead"], "dt": ["entrou em"], "etapa": ["etapa atual"], "email": ["e-mail"],
+    # Cantores: A id · B entrada · D etapa · H reunião CEO em · N e-mail · O WhatsApp · Q-U UTMs · Z página
+    "lsc": ({"id": ["id do lead"], "dt": ["entrou em"], "etapa": ["etapa atual"], "ceo": ["reuniao ceo em"], "email": ["e-mail"],
              "wa": ["whatsapp"], "src": ["utm_source"], "med": ["utm_medium"], "camp": ["utm_campaign"],
              "cont": ["utm_content"], "term": ["utm_term"], "pg": ["pagina de entrada"]},
-            {"id": 0, "dt": 1, "etapa": 3, "email": 13, "wa": 14, "src": 16, "med": 17, "camp": 18,
+            {"id": 0, "dt": 1, "etapa": 3, "ceo": 7, "email": 13, "wa": 14, "src": 16, "med": 17, "camp": 18,
              "cont": 19, "term": 20, "pg": 25}),
     # Evento: A id · B entrada · D etapa · G WhatsApp · H e-mail · T como chegou · V-Z UTMs · AC página
     "evt": ({"id": ["id"], "dt": ["entrada"], "etapa": ["etapa"], "wa": ["whatsapp"], "email": ["e-mail"],
@@ -266,8 +266,11 @@ LEAD_COLS = {
 }
 
 
-def classify_lsc(etapa: str) -> str:
-    if etapa == C.ETAPA_MQL:
+def classify_lsc(etapa: str, ceo_em: str = "") -> str:
+    """MQL = reunião com o CEO marcada (coluna H preenchida ou etapa Reunião CEO
+    em diante). A Etapa atual sozinha não basta: quem avança para Ativo/Backstage
+    sai da etapa "Reunião CEO" e deixaria de contar como MQL."""
+    if ceo_em or etapa == C.ETAPA_MQL or etapa in C.ETAPAS_POS_CEO:
         return "mql"
     if etapa == C.ETAPA_DESQUALIFICADO:
         return "dq"
@@ -348,7 +351,7 @@ def build_leads(rows, meta, panel, start):
         if not hit:
             sem_vinc.append(r)
         if panel == "lsc":
-            rec["st"] = classify_lsc(r["etapa"])
+            rec["st"] = classify_lsc(r["etapa"], r.get("ceo", ""))
             if rec["st"] == "outra":
                 rec["et"] = r["etapa"] or "(vazio)"
                 unknown[rec["et"]] += 1
