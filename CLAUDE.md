@@ -74,11 +74,18 @@ O `build.py` casa as colunas pelo nome (aliases) com a posição acima como rese
 - **Testes** (separados): `utm_source = teste_gtm` ou Como chegou = `Outro: Teste técnico interno`.
 - **Duplicados**: WhatsApp normalizado (sem DDI 55, DDD + últimos 8 dígitos →
   igual com/sem 9º dígito), fallback no e-mail. Fica o cadastro mais antigo.
-- **MQL (só cantores)** — coluna D *Etapa atual*, valores exatos:
+- **MQL (só cantores)** — coluna D *Etapa atual*, valor exato. **Decisão do cliente (13/11/2026):
+  qualificado = só quem está HOJE em `Reunião CEO`.**
   - `Reunião CEO` = **MQL**
   - `Rejeitado` = **Desqualificado**
   - `Formulário preenchido` = **Ainda não avaliado**
-  - `Removido` / `Arquivado` = contam no total de leads, **fora** da classificação (mostrados à parte)
+  - **Outras etapas** = `Removido`, `Arquivado` e as etapas posteriores do CRM (`Contato inicial`,
+    `Aguardando live teste`, `Live teste`, `Cadastro Backstage`, `Backstage`, `Ativo` —
+    `ETAPAS_POS_CEO` em `build/config.py`): contam no total de leads, **fora** da classificação
+    e da taxa; a dash mostra a quantidade por etapa.
+  - Atenção: um lead que avança da Reunião CEO para Ativo/Backstage **sai** da contagem de MQL
+    (foi assim que a dash mostrou 12 MQLs em 05–12/11, enquanto 21 tiveram reunião com o CEO —
+    coluna H "Reunião CEO em"). O cliente confirmou que quer contar só a etapa atual.
   - Qualquer outro valor: aparece como aviso na dash e no log do build → **avisar o gestor**.
 - **Taxa de qualificação** = MQLs ÷ (MQLs + desqualificados), com o denominador
   visível. Não avaliados ficam fora do denominador.
