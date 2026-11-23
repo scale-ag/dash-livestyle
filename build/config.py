@@ -49,13 +49,14 @@ EVT_GOAL = 150
 
 # Classificação de MQL (só cantores) pela coluna D "Etapa atual".
 # Comparação sem diferença de maiúsculas/acentos ("aguardando live teste" = "Aguardando live teste").
-# Decisão do cliente (23/11/2026): MQL = Etapa atual em QUALQUER um destes status.
-ETAPAS_MQL = ("Reunião CEO", "Ativo", "Arquivado", "Aguardando live teste", "Cadastro Backstage")
+# Decisão do cliente (23/11/2026): MQL = Etapa atual em QUALQUER um destes status
+# (inclui etapas do CRM ainda sem leads, para já contarem quando aparecerem).
+ETAPAS_MQL = ("Reunião CEO", "Ativo", "Arquivado", "Aguardando live teste", "Cadastro Backstage",
+              "Contato inicial", "Live teste", "Backstage")
 ETAPA_DESQUALIFICADO = "Rejeitado"
 ETAPA_NAO_AVALIADO = "Formulário preenchido"
 # No total de leads, fora da classificação e da taxa ("Outras etapas" na dash).
-# Inclui etapas do CRM que não estão na lista de MQL do cliente.
-ETAPAS_FORA = ("Removido", "Contato inicial", "Live teste", "Backstage")
+ETAPAS_FORA = ("Removido",)
 # Qualquer valor fora dessas listas é avisado no log do build e na dash.
 
 # --------------------------------------------------------------------------- #
