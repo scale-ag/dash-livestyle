@@ -585,7 +585,7 @@ function renderLsc(){
     return Object.entries(c).sort((a,b)=>b[1]-a[1]).map(([e,n])=>`${intf(n)} ${escHtml(e)}`).join(' · '); };
   const foraTxt=byEt('fora'), mqlTxt=byEt('mql');
   document.getElementById('lscQual').innerHTML=[
-    ['q-mql','MQLs',mqlTxt||'Reunião CEO, Ativo, Arquivado, Aguardando live teste, Cadastro Backstage',t.mql,'CPMQL '+brl(d.cpmql)],
+    ['q-mql','MQLs',mqlTxt||'Reunião CEO, Contato inicial, Aguardando live teste, Live teste, Cadastro Backstage, Backstage, Ativo, Arquivado',t.mql,'CPMQL '+brl(d.cpmql)],
     ['q-dq','Desqualificados','Rejeitado',t.dq,''],
     ['q-na','Não avaliados','Formulário preenchido',t.na,'fora da taxa'],
     ['q-fora','Outras etapas',foraTxt||'Removido',t.fora,'no total de leads, fora da taxa'],
