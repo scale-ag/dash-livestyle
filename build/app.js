@@ -525,7 +525,7 @@ function renderGeralCore(ids){
     ['Investimento total', brl(gTot), [['Cantores',brl(dL.gasto)],['Evento',brl(dE.gasto)],['Seguidores',brl(dS.gasto)]], false, 'hl-gasto'],
     ['Leads (cantores + evento)', intf(nLeads), [['CPL',brl(cplTot)]], false, 'hl-mql'],
     ['Leads de cantores', intf(tL.leads), [['CPL',brl(dL.cpl)]]],
-    ['MQLs (Reunião CEO)', intf(tL.mql), [['Tx‑Qualif.',pct(dL.txq)],['CPMQL',brl(dL.cpmql)]], false, 'hl-mql'],
+    ['MQLs', intf(tL.mql), [['Tx‑Qualif.',pct(dL.txq)],['CPMQL',brl(dL.cpmql)]], false, 'hl-mql'],
     ['Inscrições evento SP', intf(tE.leads), [['CPL',brl(dE.cpl)]]],
     ['Seguidores Instagram', intf(dS.seg), [['C/Seguidor',brl(dS.cpseg)]]],
   ]);
@@ -570,7 +570,7 @@ function renderLsc(){
     {label:'Leads',val:intf(t.leads),aux:'cadastros de anúncio Meta',hero:true},
     {label:'Custo por lead',val:brl(d.cpl),aux:'gasto ÷ leads',hero:true},
     {label:'Taxa de qualificação',val:pct(d.txq),aux:`${intf(t.mql)} MQLs ÷ ${intf(d.aval)} avaliados`,hero:true},
-    {label:'MQLs (Reunião CEO)',val:intf(t.mql),aux:'CPMQL '+brl(d.cpmql)},
+    {label:'MQLs',val:intf(t.mql),aux:'CPMQL '+brl(d.cpmql)},
   ]);
   document.getElementById('lscFunnel').innerHTML=funnelHTML([
     ['Gasto', brl(d.gasto), [], false, 'hl-gasto'],
@@ -578,16 +578,17 @@ function renderLsc(){
     ['Cliques', intf(t.cl), [['CTR',pct(d.ctr)],['CPC',brl(d.cpc)]]],
     ['Page Views', intf(t.pv), [['CR',pct(d.cr)],['CPV',brl(d.cpv)]]],
     ['Leads', intf(t.leads), [['CPL',brl(d.cpl)],['Tx‑Qualif.',pct(d.txq)]], false, 'hl-mql'],
-    ['MQLs (Reunião CEO)', intf(t.mql), [['Tx‑Qualif.',pct(d.txq)],['CPMQL',brl(d.cpmql)]], false, 'hl-mql'],
+    ['MQLs', intf(t.mql), [['Tx‑Qualif.',pct(d.txq)],['CPMQL',brl(d.cpmql)]], false, 'hl-mql'],
   ]);
   setWarn('lscWarn', warnHTML('lsc',fL));
-  const foraC={}; fL.forEach(r=>{ if(r.st==='fora') foraC[r.et]=(foraC[r.et]||0)+1; });
-  const foraTxt=Object.entries(foraC).sort((a,b)=>b[1]-a[1]).map(([e,n])=>`${intf(n)} ${escHtml(e)}`).join(' · ');
+  const byEt=st=>{ const c={}; fL.forEach(r=>{ if(r.st===st) c[r.et]=(c[r.et]||0)+1; });
+    return Object.entries(c).sort((a,b)=>b[1]-a[1]).map(([e,n])=>`${intf(n)} ${escHtml(e)}`).join(' · '); };
+  const foraTxt=byEt('fora'), mqlTxt=byEt('mql');
   document.getElementById('lscQual').innerHTML=[
-    ['q-mql','MQLs','Etapa atual Reunião CEO',t.mql,'CPMQL '+brl(d.cpmql)],
+    ['q-mql','MQLs',mqlTxt||'Reunião CEO, Ativo, Arquivado, Aguardando live teste, Cadastro Backstage',t.mql,'CPMQL '+brl(d.cpmql)],
     ['q-dq','Desqualificados','Rejeitado',t.dq,''],
     ['q-na','Não avaliados','Formulário preenchido',t.na,'fora da taxa'],
-    ['q-fora','Outras etapas',foraTxt||'Removido, Arquivado, Ativo, Backstage…',t.fora,'no total de leads, fora da taxa'],
+    ['q-fora','Outras etapas',foraTxt||'Removido',t.fora,'no total de leads, fora da taxa'],
     ['','Taxa de qualificação','MQLs ÷ (MQLs + desqualificados)',null,`${intf(t.mql)} ÷ ${intf(d.aval)}`],
   ].map(([c,l,s,v,a])=>`<div class="qual-box ${c}"><div class="ql">${l}</div><div class="qv">${v==null?pct(d.txq):intf(v)}</div><div class="qa">${s}${a?' · '+a:''}</div></div>`).join('');
   /* quente × frio */

@@ -25,7 +25,7 @@ Build 100% no **GitHub Actions**, disparado a cada **2 h** pelo cron-job.org
 | Seção | Página (`#hash`) | O que mostra |
 |---|---|---|
 | Geral | Visão Geral (`#geral`) | Soma de todas as campanhas: investimento total (Cantores / Evento / Seguidores), leads de cantores + evento com CPL, taxa de qualificação (cantores), seguidores e custo por seguidor |
-| Captação de Cantores | Funil de Cantores — LSC (`#lsc`) | Gasto, leads, CPL, MQLs, desqualificados, não avaliados, removidos/arquivados, taxa de qualificação, CPMQL, quente × frio |
+| Captação de Cantores | Funil de Cantores — LSC (`#lsc`) | Gasto, leads, CPL, MQLs (Reunião CEO, Ativo, Arquivado, Aguardando live teste, Cadastro Backstage), desqualificados, não avaliados, outras etapas, taxa de qualificação, CPMQL, quente × frio |
 | Evento Presencial | Funil Evento SP — EVT (`#evt`) | Progresso da meta (150), gasto, inscrições, CPL |
 | Seguidores | Seguidores Instagram (`#seg`) | Gasto, seguidores (coluna H), custo por seguidor, por anúncio e por dia |
 
@@ -74,18 +74,17 @@ O `build.py` casa as colunas pelo nome (aliases) com a posição acima como rese
 - **Testes** (separados): `utm_source = teste_gtm` ou Como chegou = `Outro: Teste técnico interno`.
 - **Duplicados**: WhatsApp normalizado (sem DDI 55, DDD + últimos 8 dígitos →
   igual com/sem 9º dígito), fallback no e-mail. Fica o cadastro mais antigo.
-- **MQL (só cantores)** — coluna D *Etapa atual*, valor exato. **Decisão do cliente (13/11/2026):
-  qualificado = só quem está HOJE em `Reunião CEO`.**
-  - `Reunião CEO` = **MQL**
+- **MQL (só cantores)** — coluna D *Etapa atual* (comparação sem maiúsculas/acentos).
+  **Decisão do cliente (23/11/2026): MQL = Etapa atual em `Reunião CEO`, `Ativo`, `Arquivado`,
+  `Aguardando live teste` ou `Cadastro Backstage`** (`ETAPAS_MQL` em `build/config.py`).
   - `Rejeitado` = **Desqualificado**
   - `Formulário preenchido` = **Ainda não avaliado**
-  - **Outras etapas** = `Removido`, `Arquivado` e as etapas posteriores do CRM (`Contato inicial`,
-    `Aguardando live teste`, `Live teste`, `Cadastro Backstage`, `Backstage`, `Ativo` —
-    `ETAPAS_POS_CEO` em `build/config.py`): contam no total de leads, **fora** da classificação
-    e da taxa; a dash mostra a quantidade por etapa.
-  - Atenção: um lead que avança da Reunião CEO para Ativo/Backstage **sai** da contagem de MQL
-    (foi assim que a dash mostrou 12 MQLs em 05–12/11, enquanto 21 tiveram reunião com o CEO —
-    coluna H "Reunião CEO em"). O cliente confirmou que quer contar só a etapa atual.
+  - **Outras etapas** = `Removido` e etapas do CRM fora da lista de MQL (`Contato inicial`,
+    `Live teste`, `Backstage` — `ETAPAS_FORA`): contam no total de leads, **fora** da
+    classificação e da taxa; a dash mostra a quantidade por etapa.
+  - Histórico: até 22/11 MQL era só `Reunião CEO` (decisão de 13/11); leads que avançavam para
+    Ativo/Backstage saíam da contagem. Atenção: `Arquivado` conta como MQL por decisão do
+    cliente, mesmo que o lead não tenha passado pela reunião.
   - Qualquer outro valor: aparece como aviso na dash e no log do build → **avisar o gestor**.
 - **Taxa de qualificação** = MQLs ÷ (MQLs + desqualificados), com o denominador
   visível. Não avaliados ficam fora do denominador.
