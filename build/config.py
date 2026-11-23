@@ -47,17 +47,16 @@ EVT_START = "2026-11-06"
 EVT_END = "2026-11-18"
 EVT_GOAL = 150
 
-# Classificação de MQL (só cantores) pela coluna D "Etapa atual" (valor EXATO).
-# Decisão do cliente (13/11/2026): qualificado = SÓ quem está HOJE em "Reunião CEO".
-# Quem avançou no CRM (Ativo, Cadastro Backstage...) NÃO conta como MQL: fica em
-# "Outras etapas", junto com Removido/Arquivado (no total de leads, fora da taxa).
-# Qualquer valor fora das listas abaixo é avisado no log do build e na dash.
-ETAPA_MQL = "Reunião CEO"
-ETAPAS_POS_CEO = ("Contato inicial", "Aguardando live teste", "Live teste", "Cadastro Backstage",
-                  "Backstage", "Ativo")
+# Classificação de MQL (só cantores) pela coluna D "Etapa atual".
+# Comparação sem diferença de maiúsculas/acentos ("aguardando live teste" = "Aguardando live teste").
+# Decisão do cliente (23/11/2026): MQL = Etapa atual em QUALQUER um destes status.
+ETAPAS_MQL = ("Reunião CEO", "Ativo", "Arquivado", "Aguardando live teste", "Cadastro Backstage")
 ETAPA_DESQUALIFICADO = "Rejeitado"
 ETAPA_NAO_AVALIADO = "Formulário preenchido"
-ETAPAS_FORA = ("Removido", "Arquivado") + ETAPAS_POS_CEO   # no total de leads, fora da classificação
+# No total de leads, fora da classificação e da taxa ("Outras etapas" na dash).
+# Inclui etapas do CRM que não estão na lista de MQL do cliente.
+ETAPAS_FORA = ("Removido", "Contato inicial", "Live teste", "Backstage")
+# Qualquer valor fora dessas listas é avisado no log do build e na dash.
 
 # --------------------------------------------------------------------------- #
 # Regras

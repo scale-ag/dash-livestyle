@@ -267,14 +267,16 @@ LEAD_COLS = {
 
 
 def classify_lsc(etapa: str) -> str:
-    """MQL = Etapa atual exatamente "Reunião CEO" (decisão do cliente, 13/11/2026)."""
-    if etapa == C.ETAPA_MQL:
+    """MQL = Etapa atual em ETAPAS_MQL (decisão do cliente, 23/11/2026).
+    Compara sem diferença de maiúsculas/acentos/espaços nas pontas."""
+    e = norm(etapa)
+    if e in {norm(x) for x in C.ETAPAS_MQL}:
         return "mql"
-    if etapa == C.ETAPA_DESQUALIFICADO:
+    if e == norm(C.ETAPA_DESQUALIFICADO):
         return "dq"
-    if etapa == C.ETAPA_NAO_AVALIADO:
+    if e == norm(C.ETAPA_NAO_AVALIADO):
         return "na"
-    if etapa in C.ETAPAS_FORA:
+    if e in {norm(x) for x in C.ETAPAS_FORA}:
         return "fora"
     return "outra"
 
@@ -350,7 +352,7 @@ def build_leads(rows, meta, panel, start):
             sem_vinc.append(r)
         if panel == "lsc":
             rec["st"] = classify_lsc(r["etapa"])
-            if rec["st"] == "fora":
+            if rec["st"] in ("fora", "mql"):
                 rec["et"] = r["etapa"]
             if rec["st"] == "outra":
                 rec["et"] = r["etapa"] or "(vazio)"
