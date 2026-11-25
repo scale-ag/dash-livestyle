@@ -27,11 +27,12 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build-deploy:
+  # Build e publicacao em jobs separados (padrao oficial do GitHub Pages): o
+  # artefato e enviado no job "build" e lido no job "deploy". No mesmo job, o
+  # deploy as vezes nao encontrava o artefato recem-enviado ("No artifacts named
+  # github-pages were found") e a dash ficava sem atualizar.
+  build:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -57,6 +58,24 @@ jobs:
         with:
           path: dist
 
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url || steps.deploy_retry.outputs.page_url }}
+    steps:
       - name: Deploy to GitHub Pages
         id: deploy
+        continue-on-error: true
+        uses: actions/deploy-pages@v5
+
+      # Falha intermitente da API de artefatos do GitHub: espera e tenta de novo.
+      - name: Aguarda antes de tentar de novo
+        if: steps.deploy.outcome == 'failure'
+        run: sleep 30
+
+      - name: Deploy to GitHub Pages (2a tentativa)
+        id: deploy_retry
+        if: steps.deploy.outcome == 'failure'
         uses: actions/deploy-pages@v5
