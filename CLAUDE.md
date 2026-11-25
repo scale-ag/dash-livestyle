@@ -179,3 +179,8 @@ O log do build (stderr) mostra totais, cadastros sem vínculo (com ID) e etapas 
    Build na tela: rodapé do menu e "Última atualização" na topbar.
 5. **Lead sem campanha**: conferir no log do build os IDs "sem vínculo" e comparar as
    UTMs/URL da página de entrada com Campaign/Ad Set/Ad Name da extração.
+6. **"Deploy falhou: No artifacts named github-pages were found"** (25/11/2026: 41 de 100
+   execuções falharam assim e a dash ficou horas desatualizada). Correção: build e deploy em
+   **jobs separados** (`build` envia o artefato, `deploy` publica) e o deploy tenta de novo após
+   30 s se falhar. Se voltar a acontecer, conferir em Actions qual job falhou; o site fica na
+   última versão publicada (horário em "Última atualização").
